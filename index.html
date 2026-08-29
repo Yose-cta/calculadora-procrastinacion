@@ -1068,6 +1068,29 @@ function render(r){
         <div class="acts hidden" id="agendaBox" style="margin-top:18px">
           <a class="btn" id="btnAgenda" href="#" target="_blank" rel="noopener">Agendar mi ${esc_(CONFIG.sesionNombre)}</a>
         </div>
+
+        <div id="pedirBox" style="margin-top:20px">
+          <p class="note" id="pedirIntro" style="margin-bottom:12px">Dime dónde escribirte y te paso las horas libres.</p>
+          <div class="fields">
+            <div class="field">
+              <label for="c-nombre">Tu nombre</label>
+              <input type="text" id="c-nombre" autocomplete="name" value="${esc_(r.nombre)}">
+            </div>
+            <div class="field">
+              <label for="c-email">Email</label>
+              <input type="text" id="c-email" autocomplete="email" inputmode="email" placeholder="tu@correo.com">
+            </div>
+            <div class="field">
+              <label for="c-handle">WhatsApp o Instagram</label>
+              <input type="text" id="c-handle" placeholder="+34 600 000 000" autocomplete="off">
+            </div>
+          </div>
+          <div class="acts" style="margin-top:16px">
+            <button class="btn" id="btnPedir">Quiero mi ${esc_(CONFIG.sesionNombre)}</button>
+            <span class="note" id="pedirMsg" style="margin:0"></span>
+          </div>
+          <p class="note" style="margin-top:12px">Solo se usa para agendar tu sesión.</p>
+        </div>
       </div>
     </div>
 
@@ -1097,6 +1120,26 @@ function render(r){
     if (CONFIG.agendaUrl){
       const sep = CONFIG.agendaUrl.indexOf("?") < 0 ? "?" : "&";
       $("#btnAgenda").href = CONFIG.agendaUrl + sep + "ref=" + encodeURIComponent(RESP_ID.slice(0,8));
+    }
+  });
+
+  const pMsg = $("#pedirMsg"), pBtn = $("#btnPedir");
+  if (CONFIG.agendaUrl) $("#pedirIntro").textContent = "O dime dónde escribirte y lo cerramos por mensaje.";
+  pBtn.addEventListener("click", async () => {
+    const nombre = $("#c-nombre").value.trim();
+    const email  = $("#c-email").value.trim();
+    const handle = $("#c-handle").value.trim();
+    if (!email && !handle){ pMsg.textContent = "Dime un email o un WhatsApp."; return; }
+    if (email && email.indexOf("@") < 1){ pMsg.textContent = "Ese email no parece completo."; return; }
+    if (!RESP_ID){ pMsg.textContent = "Sin conexión. Inténtalo en un momento."; return; }
+    pBtn.disabled = true; pMsg.textContent = "Enviando…";
+    try {
+      await rpc("calc_contacto", {p_id:RESP_ID, p_name:nombre, p_email:email, p_handle:handle});
+      $("#pedirBox").innerHTML = '<h3 style="margin-bottom:8px">Hecho. Te escribo con las horas.</h3>' +
+        '<p style="margin-bottom:0">Llega con tus números y empezamos en el minuto uno.</p>';
+    } catch(e){
+      pBtn.disabled = false;
+      pMsg.textContent = "No se pudo enviar. Inténtalo otra vez.";
     }
   });
 
