@@ -291,18 +291,19 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
           <label>
             <input type="checkbox" id="okTerminos">
             <span class="box"></span>
-            <span>Acepto los términos de uso y el tratamiento de mi información para realizar este diagnóstico.</span>
+            <span>Acepto los términos de uso.</span>
           </label>
-          <div style="margin-top:10px;padding-left:31px">
+          <div style="margin-top:9px;padding-left:31px">
+            <p class="note" style="margin:0 0 8px">Para ver tu diagnóstico no tienes que registrarte y <strong>no se guarda ningún dato personal tuyo</strong>: ni nombre, ni email, ni teléfono.</p>
             <button type="button" class="lnk" id="verTerminos">Leerlos</button>
           </div>
           <div class="terms hidden" id="terminos">
             <b>Términos de uso</b>
             <ul>
               <li>Este diagnóstico es una herramienta de orientación sobre tu semana de trabajo. No es asesoría financiera, legal ni psicológica, y sus resultados no garantizan ningún ingreso.</li>
-              <li>Tus respuestas se guardan sin nombre y sin email, para estudiar qué patrones se repiten.</li>
-              <li>Tu nombre y tu forma de contacto se guardan solo si los escribes tú al final, y solo se usan para responderte sobre esto.</li>
-              <li>Tu información viaja cifrada y se guarda protegida. No se vende ni se comparte con nadie. Puedes pedir que la borremos cuando quieras.</li>
+              <li>No se guarda ningún dato personal tuyo. Solo quedan las respuestas del cuestionario, que por sí solas no identifican a nadie, y sirven para ver qué patrones se repiten.</li>
+              <li>Si al final decides pedir tu diagnóstico por escrito, lo que escribas ahí se usa únicamente para enviártelo.</li>
+              <li>Todo viaja cifrado y se guarda protegido. No se vende ni se comparte con nadie. Puedes pedir que lo borremos cuando quieras.</li>
             </ul>
           </div>
         </div>
@@ -1063,8 +1064,9 @@ function render(r){
       </div>
 
       <div id="pedirBox" style="margin-top:26px;padding-top:22px;border-top:1px solid var(--line)">
-        <h4 id="pedirTit">O pídela y te escribo yo</h4>
-        <div class="fields" style="margin-top:14px">
+        <h4 id="pedirTit">Y llévate el diagnóstico por escrito</h4>
+        <p style="margin-bottom:0">Esto que estás leyendo se pierde en cuanto cierres la pestaña. Dime dónde te lo envío y lo tienes guardado para el lunes, cuando toque decidir de verdad.</p>
+        <div class="fields" style="margin-top:16px">
           <div class="field">
             <label for="c-nombre">Tu nombre</label>
             <input type="text" id="c-nombre" autocomplete="name" value="${esc_(r.nombre)}">
@@ -1078,17 +1080,11 @@ function render(r){
             <input type="text" id="c-handle" placeholder="+34 600 000 000" autocomplete="off">
           </div>
         </div>
-        <div class="consent" style="margin-top:18px">
-          <label>
-            <input type="checkbox" id="okContacto">
-            <span class="box"></span>
-            <span>Acepto que se guarden estos datos y que me contacten para agendar mi ${esc_(CONFIG.sesionNombre)}.</span>
-          </label>
-        </div>
-        <div class="acts" style="margin-top:16px">
-          <button class="btn" id="btnContacto" disabled>Solicitar mi sesión</button>
+        <div class="acts" style="margin-top:18px">
+          <button class="btn" id="btnContacto">Enviarme mi diagnóstico</button>
           <span class="note" id="contactoMsg" style="margin:0"></span>
         </div>
+        <p class="note" style="margin-top:14px">Lo que escribas aquí se usa solo para enviarte tu diagnóstico. Para nada más.</p>
       </div>
     </div>
 
@@ -1109,9 +1105,7 @@ function render(r){
   if (CONFIG.agendaUrl){
     $("#agendaBox").classList.remove("hidden");
     $("#btnAgenda").href = CONFIG.agendaUrl;
-    $("#pedirTit").textContent = "O pídela y te escribo yo";
-  } else {
-    $("#pedirTit").textContent = "Pídela y te escribo yo";
+    $("#pedirTit").textContent = "O llévate el diagnóstico por escrito";
   }
 
   guardar(r).then(() => {
@@ -1126,20 +1120,18 @@ function render(r){
 
   const cMsg = $("#contactoMsg"), cBtn = $("#btnContacto");
 
-  /* consentimiento 2: sin aceptar no se envía */
-  $("#okContacto").addEventListener("change", e => { cBtn.disabled = !e.target.checked; });
   cBtn.addEventListener("click", async () => {
     const nombre = $("#c-nombre").value.trim();
     const email  = $("#c-email").value.trim();
     const handle = $("#c-handle").value.trim();
-    if (!email && !handle){ cMsg.textContent = "Escribe un email o un WhatsApp."; return; }
+    if (!email && !handle){ cMsg.textContent = "Dime un email o un WhatsApp para poder enviártelo."; return; }
     if (email && email.indexOf("@") < 1){ cMsg.textContent = "Ese email no parece completo."; return; }
     if (!RESP_ID){ cMsg.textContent = "No hay conexión ahora mismo. Vuelve a intentarlo en un momento."; return; }
     cBtn.disabled = true; cMsg.textContent = "Enviando…";
     try {
       await rpc("calc_contacto", {p_id:RESP_ID, p_name:nombre, p_email:email, p_handle:handle});
-      $("#contacto").innerHTML = '<h4>Recibido</h4><h3 style="margin-bottom:10px">Te escribo para cerrar la hora.</h3>' +
-        '<p style="margin-bottom:0">Tus números ya están conmigo. No esperes a mi mensaje para empezar: el punto 5 del plan es el que recoloca todo lo demás, y ese lo puedes hacer hoy.</p>';
+      $("#contacto").innerHTML = '<h4>Hecho</h4><h3 style="margin-bottom:10px">Te lo envío.</h3>' +
+        '<p style="margin-bottom:0">No esperes a tenerlo delante para empezar: el punto 5 del plan es el que recoloca todo lo demás, y ese lo puedes hacer hoy.</p>';
     } catch(e){
       cBtn.disabled = false;
       cMsg.textContent = "No se pudo enviar. Inténtalo otra vez en un momento.";
