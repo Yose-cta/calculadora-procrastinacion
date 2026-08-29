@@ -257,7 +257,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
 
         <div class="card gold">
           <h4>Cómo funciona</h4>
-          <p>Cada bloque de tu semana se mide en <strong>dos ejes a la vez</strong>: cuánto <strong>mueve</strong> el negocio y cuánta <strong>exposición</strong> te cuesta — a que te digan que no, a decir tu precio en voz alta, a incomodar.</p>
+          <p>Cada bloque de tu semana se mide en <strong>dos ejes a la vez</strong>: cuánto <strong>mueve</strong> el negocio y cuánta <strong>exposición</strong> te cuesta: que te digan que no, que digas tu precio en voz alta, que incomodes.</p>
           <p>Casi todo lo que llena una semana ocupada puntúa bajo en el primer eje y bajo en el segundo. Es cómodo <em>y</em> parece trabajo. Por eso no se nota.</p>
           <p style="margin-bottom:0">Al final vas a ver tu semana dibujada en esos dos ejes. La parte interesante no es dónde están tus horas. Es <strong>la esquina donde no hay ninguna</strong>.</p>
         </div>
@@ -265,7 +265,6 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
         <div class="acts">
           <button class="btn" data-go="1">Medir mi semana</button>
         </div>
-        <p class="note" id="privNote">Al terminar se guarda tu resultado <strong>sin nombre y sin email</strong>, para poder estudiar qué patrones se repiten. Ver el diagnóstico no te pide registrarte: dejar tus datos es opcional y va al final, cuando ya has visto todo.</p>
       </div>
     </section>
 
@@ -383,7 +382,9 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
   </main>
 
   <div class="foot">
-    <b>Sobre los números.</b> Esta calculadora no es un estudio: es un instrumento de dirección. Los coeficientes de cada bloque salen de una sola pregunta — si esa hora desapareciera de tu semana, ¿entraría menos dinero nuevo el mes que viene? Uno solo es variable, el del contenido, porque publicar solo mueve en proporción a lo que lo sigue. La aritmética del final es una multiplicación con los supuestos a la vista, no una promesa de ingresos. Puedes discutir cada número, y deberías. <b>Sobre tus datos.</b> El resultado se guarda de forma anónima; el nombre, el email o el Instagram solo se guardan si los escribes tú al final.
+    <b>Sobre los números.</b> Esto no es un estudio. Es un instrumento de dirección. Cada bloque de tu semana está puntuado con una sola pregunta detrás: si esa hora desapareciera, ¿entraría menos dinero nuevo el mes que viene? Uno solo cambia según tu caso, el del contenido, porque publicar mueve en proporción a lo que lo sigue. Y la cuenta del final no es una previsión: es una multiplicación con los supuestos a la vista. Discútela. Para eso están puestos.
+    <br><br>
+    <b>Sobre tus datos.</b> Tu resultado se guarda sin nombre y sin email, para saber qué patrones se repiten. Tu nombre, tu correo o tu Instagram se guardan solo si los escribes tú al final, y solo se usan para escribirte sobre esto.
   </div>
 </div>
 
@@ -562,7 +563,7 @@ const PERFILES = {
     nm:"La que ya empuja",
     frase:"“Estoy haciendo lo que hay que hacer.”",
     retrato:"Tu semana sí tiene motor. Pides, haces seguimiento, hablas con gente que puede comprar. No es lo habitual.",
-    giro:"Y por eso tu diagnóstico es distinto. Si estás empujando y el resultado no sube, la causa ya no está en tu agenda: está en el precio o en a quién se lo estás diciendo. Ese es un problema mucho mejor. No se arregla con más horas — se arregla con una decisión.",
+    giro:"Y por eso tu diagnóstico es distinto. Si estás empujando y el resultado no sube, la causa ya no está en tu agenda: está en el precio o en a quién se lo estás diciendo. Ese es un problema mucho mejor. No se arregla con más horas. Se arregla con una decisión.",
     poder:"Antes de añadir una hora más, mira el precio. Casi siempre el techo estaba ahí.",
     mueve:["decidir","prospect"]
   }
@@ -608,7 +609,7 @@ function tally(){
   const diff = t - d;
   let msg;
   if (t === 0)                 msg = "Mueve al menos una barra para continuar.";
-  else if (Math.abs(diff) <= 3) msg = "repartidas — cuadra con las " + fmtH(d) + " h que dijiste.";
+  else if (Math.abs(diff) <= 3) msg = "repartidas. Cuadra con las " + fmtH(d) + " h que dijiste.";
   else if (diff > 0)            msg = "repartidas. Dijiste " + fmtH(d) + " h: te sobran " + fmtH(diff) + " h. Calcularemos sobre lo que repartas.";
   else                          msg = "repartidas. Dijiste " + fmtH(d) + " h: faltan " + fmtH(-diff) + " h por colocar.";
   $("#tallyT").textContent = msg;
@@ -657,9 +658,6 @@ $$("[data-go]").forEach(b => b.addEventListener("click", () => go(+b.dataset.go)
 $("#btnCalc").addEventListener("click", calcular);
 tally();
 
-if (!DB.url || !DB.key){
-  $("#privNote").innerHTML = "No se guarda ni se envía nada. Todo se calcula en tu navegador y desaparece cuando cierras la pestaña.";
-}
 
 /* ══════════════════════════════════════════════════════════════
    CÁLCULO
@@ -736,7 +734,7 @@ function calcular(){
 
   /* --- lectura combinada --- */
   const lect = (pct < 20 && evasion >= 50)
-      ? "Semana ocupada, negocio quieto: el patrón completo. Las horas y las decisiones dicen lo mismo, así que no es una mala racha — es un diseño."
+      ? "Semana ocupada, negocio quieto: el patrón completo. Las horas y las decisiones dicen lo mismo, así que no es una mala racha. Es un diseño."
     : (pct < 20 && evasion < 50)
       ? "Curioso: dices que las decisiones incómodas no te frenan, pero tu semana no tiene dónde ejecutarlas. Sabes qué hay que hacer y no le has dado hora."
     : (pct >= 20 && evasion >= 50)
@@ -881,7 +879,7 @@ function render(r){
       <h3 style="margin-bottom:12px">${r.evitada.t}</h3>
       <p>Dijiste: <em>“${esc_(r.evitada.resp)}”</em>.
       ${r.evitada.corroborado
-        ? `Y tus horas lo confirman por su cuenta — no hay tiempo asignado en tu semana a esa decisión. Cuando las dos mediciones coinciden, deja de ser una sensación.`
+        ? `Y tus horas lo confirman por su cuenta: no hay tiempo asignado en tu semana a esa decisión. Cuando las dos mediciones coinciden, deja de ser una sensación.`
         : `Aparece la primera de las cinco.`}</p>
       ${r.evitada.ciega ? `<p><strong>“Ni me lo planteo” no es lo mismo que “no aplica”.</strong> Es la forma más limpia de posponer: la que no deja rastro en la lista de pendientes porque nunca entró en la lista.</p>` : ""}
       <p style="margin-bottom:0">Mientras esa decisión siga abierta, cualquier hora extra que le metas al negocio se va a repartir entre las otras cosas. Las horas van donde no duele.</p>
@@ -906,7 +904,7 @@ function render(r){
       <div class="metric rose">
         <div class="k">Índice de evasión</div>
         <div class="v">${r.evasion}<small>%</small></div>
-        <div class="d">Cuánto de lo que más movería está aparcado — según tus decisiones y tu conducta, no según tus horas.</div>
+        <div class="d">Cuánto de lo que más movería está aparcado, según tus decisiones y tu conducta, no según tus horas.</div>
         <span class="pill rose">${r.evasion>=66?"Alta":r.evasion>=40?"Media":"Baja"}</span>
       </div>
     </div>
@@ -996,9 +994,11 @@ function render(r){
     <div class="pull">No necesitas más horas. Necesitas dejar de usar la agenda como escondite.</div>
 
     <div class="card hidden" id="contacto">
-      <h4>Si quieres que lo miremos juntas</h4>
-      <h3 style="margin-bottom:10px">¿Te escribo con tu diagnóstico y el primer movimiento?</h3>
-      <p>Tu resultado ya está guardado sin nombre. Si dejas cómo encontrarte, ${esc_(CONFIG.autora)} puede escribirte con estos números concretos delante — los tuyos, no un mensaje genérico.</p>
+      <h4>El peldaño que falta</h4>
+      <h3 style="margin-bottom:10px">Ya sabes tu número. Saberlo no es moverlo.</h3>
+      <p>Acabas de subir un escalón: hace cinco minutos no sabías qué parte de tu semana movía el negocio y ahora lo sabes. Pero saber es acumulación. Mover es aplicación. Por eso conoces gente con seis formaciones hechas y la misma semana de siempre.</p>
+      <p>Este informe te dice cuál es tu número y por qué es ese. Lo que no puede hacer es sentarse contigo el martes a las nueve, cuando toca la hora incómoda y ya tienes cuarenta razones legítimas para abrir el correo primero.</p>
+      <p>Eso sí lo hago yo. Dime cómo encontrarte y te escribo con tus números delante: ${esc_(r.P.nm)}, ${mp}% de movimiento${r.evitada ? " y la decisión que sigues aplazando: " + esc_(r.evitada.corto) : ""}. Con eso ya sé por dónde empezaría contigo.</p>
       <div class="fields" style="margin-top:16px">
         <div class="field">
           <label for="c-nombre">Tu nombre</label>
@@ -1014,15 +1014,15 @@ function render(r){
         </div>
       </div>
       <div class="acts" style="margin-top:16px">
-        <button class="btn small" id="btnContacto">Que me escriba</button>
+        <button class="btn" id="btnContacto">Escríbeme con mis números</button>
         <span class="note" id="contactoMsg" style="margin:0"></span>
       </div>
-      <p class="note" style="margin-top:14px">Con esto sí quedas identificada. Solo se usa para escribirte sobre esto; nada de listas compradas ni de spam.</p>
+      <p class="note" style="margin-top:14px">Con esto sí quedas identificada. Te escribe ${esc_(CONFIG.autora)} en persona, no un sistema automático, y solo sobre esto.</p>
     </div>
 
     <div class="card gold">
       <h4>Y ahora</h4>
-      <p>Este número no baja solo, porque no lo produce la falta de tiempo: lo produce que las tareas cómodas siempre ganan cuando compiten con las que exponen. Eso no se cambia con disciplina. Se cambia con dirección: decidir antes, por escrito, dónde va cada hora — y qué decisión se toma esta semana aunque incomode.</p>
+      <p>Este número no baja solo, porque no lo produce la falta de tiempo: lo produce que las tareas cómodas siempre ganan cuando compiten con las que exponen. Eso no se cambia con disciplina. Se cambia con dirección: decidir antes, por escrito, dónde va cada hora, y qué decisión se toma esta semana aunque incomode.</p>
       <p style="margin-bottom:0"><strong>${esc_(CONFIG.ctaTexto)}</strong> y lo miramos con tus números delante.</p>
       <div class="acts" style="margin-top:18px">
         ${CONFIG.ctaUrl ? `<a class="btn" href="${esc_(CONFIG.ctaUrl)}" target="_blank" rel="noopener">${esc_(CONFIG.ctaBoton)}</a>` : ""}
@@ -1049,7 +1049,7 @@ function render(r){
     try {
       await rpc("calc_contacto", {p_id:RESP_ID, p_name:nombre, p_email:email, p_handle:handle});
       $("#contacto").innerHTML = '<h4>Recibido</h4><h3 style="margin-bottom:10px">Te escribo yo.</h3>' +
-        '<p style="margin-bottom:0">Tus números ya están conmigo. Mientras tanto, empieza por el punto 5 del plan: esa decisión es la que recoloca el resto.</p>';
+        '<p style="margin-bottom:0">Tus números ya están conmigo. No esperes a que llegue mi mensaje para empezar: el punto 5 del plan es el que recoloca todo lo demás, y ese lo puedes hacer hoy.</p>';
     } catch(e){
       cBtn.disabled = false;
       cMsg.textContent = "No se pudo enviar. Escríbeme por Instagram y lo vemos igual.";
@@ -1059,7 +1059,7 @@ function render(r){
   $("#btnAgain").addEventListener("click", () => go(0));
   $("#btnCopy").addEventListener("click", () => {
     const txt = [
-      "DIAGNÓSTICO DE PROCRASTINACIÓN PRODUCTIVA" + (r.nombre ? " — " + r.nombre : ""),
+      "DIAGNÓSTICO DE PROCRASTINACIÓN PRODUCTIVA" + (r.nombre ? ": " + r.nombre : ""),
       "",
       "Índice de movimiento: " + mp + "%  (" + r.banda + ")",
       "Índice de evasión: " + r.evasion + "%",
@@ -1116,7 +1116,7 @@ function contenidoNota(r){
     <h4>Cómo cuenta tu contenido</h4>
     <p>El contenido es el único bloque con coeficiente variable, y es a propósito: <strong>publicar mueve el negocio en la medida en que algo lo sigue</strong>. La referencia es una hora de pedir por cada tres de publicar.</p>
     <p>Tú publicas <strong>${fmtH(hc)} h</strong> y pides <strong>${fmtH(pedir)} h</strong>. Eso pone tu contenido al <strong>${pct}% de su potencia</strong>${
-      k >= .999 ? " — a pleno motor." : `: de esas ${fmtH(hc)} h, ${fmtH(escC)} h caen del lado del escondite.`}</p>
+      k >= .999 ? ", a pleno motor." : `: de esas ${fmtH(hc)} h, ${fmtH(escC)} h caen del lado del escondite.`}</p>
     ${k < .999 ? `<p style="margin-bottom:0">No es que tu contenido sea malo. Es que no lleva a ninguna parte, y un camino sin destino se recorre igual de cansada. Con <strong>${fmtH(falta)} h más</strong> de pedir a la semana, el mismo contenido pasaría a contar entero.</p>`
               : `<p style="margin-bottom:0">Publicas y pides en proporción. Poca gente lo hace.</p>`}
   </div>`;
@@ -1136,7 +1136,7 @@ function cuenta(r){
     case "bombera":
       return `<strong>${fmtH(h.mensajes + h.reuniones)} h</strong> respondiendo y coordinando. <strong>${fmtH(h.decidir)} h</strong> decidiendo. De cada 10 h que trabajas, ${((h.mensajes+h.reuniones)/r.H*10).toFixed(1).replace(".",",")} las puso en tu agenda otra persona.`;
     case "artesana":
-      return `<strong>${fmtH(h.entrega + h.mensajes)} h</strong> dentro del trabajo que ya vendiste — el ${Math.round(100*(h.entrega+h.mensajes)/r.H)}% de tu semana. <strong>${fmtH(pedir)} h</strong> consiguiendo el siguiente. Tu capacidad y tu crecimiento compiten por las mismas horas, y siempre gana el cliente que ya te pagó.`;
+      return `<strong>${fmtH(h.entrega + h.mensajes)} h</strong> dentro del trabajo que ya vendiste, el ${Math.round(100*(h.entrega+h.mensajes)/r.H)}% de tu semana. <strong>${fmtH(pedir)} h</strong> consiguiendo el siguiente. Tu capacidad y tu crecimiento compiten por las mismas horas, y siempre gana el cliente que ya te pagó.`;
     default:
       return `<strong>${fmtH(r.motorH)} h</strong> de motor sobre ${fmtH(r.H)} h. Estás en el ${Math.round(r.mov*100)}%, por encima de la línea. El límite ya no es cuánto empujas.`;
   }
