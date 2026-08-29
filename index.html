@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Mide que parte de tu semana mueve de verdad tu negocio y que decision estas evitando mientras te mantienes ocupada.">
+<title>Calculadora de Procrastinación Productiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0910; --card:#16141F; --card2:#1D1A28; --card3:#241F31;
+  --line:#2C2839; --line2:#3D374F;
+  --txt:#EFECF5; --txt2:#C6C0D6; --muted:#948DA8;
+  --gold:#E9B949; --gold-d:#B98F2E;
+  --rose:#FF4D8D; --green:#3DD68C; --red:#FF5A5A; --cyan:#4DA6FF;
+  --r:16px; --r-s:10px;
+  --ff:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --fd:'Playfair Display',Georgia,'Times New Roman',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--txt);font-family:var(--ff);font-size:16px;line-height:1.66;
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1000px 560px at 92% -14%, rgba(233,185,73,.10), transparent 62%),
+                   radial-gradient(820px 480px at -6% 6%, rgba(255,77,141,.07), transparent 60%);
+  background-attachment:fixed;
+}
+::selection{background:var(--gold);color:#0A0910}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+img,svg{max-width:100%}
+
+/* ---------- estructura ---------- */
+.shell{max-width:860px;margin:0 auto;padding:0 22px 110px}
+@media(max-width:640px){.shell{padding:0 15px 80px}}
+
+.rail{position:sticky;top:0;z-index:40;padding:16px 0 14px;background:rgba(10,9,16,.88);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.rail .bar{display:flex;gap:5px;margin-bottom:9px}
+.rail .seg{flex:1;height:3px;border-radius:2px;background:var(--line2);transition:background .4s ease}
+.rail .seg.on{background:var(--gold)}
+.rail .lbl{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.rail .lbl b{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.rail .lbl span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.rail.hide{opacity:0;pointer-events:none;height:0;padding:0;overflow:hidden;border:0}
+
+.step{display:none;padding-top:34px}
+.step.on{display:block}
+@media(prefers-reduced-motion:no-preference){
+  .step.on{animation:rise .42s cubic-bezier(.2,.7,.3,1) both}
+}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ---------- tipografía ---------- */
+.kick{display:block;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:13px}
+h1{font-family:var(--fd);font-weight:800;font-size:clamp(34px,7.4vw,62px);line-height:1.02;letter-spacing:-.015em;
+  text-wrap:balance;margin-bottom:18px;
+  background:linear-gradient(108deg,#fff 4%,var(--gold) 62%,var(--rose) 118%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--gold)}
+h2{font-family:var(--fd);font-weight:800;font-size:clamp(25px,4.4vw,36px);line-height:1.12;letter-spacing:-.01em;
+  text-wrap:balance;margin-bottom:10px}
+h3{font-family:var(--fd);font-weight:700;font-size:21px;line-height:1.24;text-wrap:balance;margin-bottom:8px}
+h4{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:10px}
+p{color:var(--txt2);margin-bottom:14px;max-width:64ch}
+p:last-child{margin-bottom:0}
+p strong,li strong{color:var(--txt);font-weight:650}
+em{color:var(--txt);font-style:italic}
+.lede{font-size:clamp(17px,2.3vw,20px);line-height:1.56;color:var(--txt);max-width:60ch}
+.note{font-size:13px;color:var(--muted);line-height:1.6;max-width:62ch}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- tarjetas ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px 26px}
+@media(max-width:640px){.card{padding:19px 17px}}
+.card.gold{border-color:rgba(233,185,73,.34);background:linear-gradient(158deg,rgba(233,185,73,.09),var(--card) 58%)}
+.card.rose{border-color:rgba(255,77,141,.34);background:linear-gradient(158deg,rgba(255,77,141,.09),var(--card) 58%)}
+.card.green{border-color:rgba(61,214,140,.32);background:linear-gradient(158deg,rgba(61,214,140,.08),var(--card) 58%)}
+.stack{display:flex;flex-direction:column;gap:18px}
+.stack-s{display:flex;flex-direction:column;gap:11px}
+.stack-l{display:flex;flex-direction:column;gap:30px}
+
+.pull{font-family:var(--fd);font-size:clamp(19px,2.8vw,26px);line-height:1.34;font-weight:700;color:var(--txt);
+  border-left:3px solid var(--gold);padding-left:20px;max-width:56ch;text-wrap:balance}
+.pull.rose{border-color:var(--rose)}
+
+/* ---------- controles ---------- */
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.field .hint{font-size:12.5px;color:var(--muted);line-height:1.5}
+input[type=text],input[type=number],select{
+  width:100%;background:var(--card2);border:1px solid var(--line2);border-radius:var(--r-s);
+  color:var(--txt);font-family:var(--ff);font-size:16px;font-weight:600;padding:11px 13px;
+  font-variant-numeric:tabular-nums;appearance:none}
+input:focus,select:focus{border-color:var(--gold);outline:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+.money{display:grid;grid-template-columns:76px 1fr;gap:8px}
+
+/* filas de horas */
+.rows{display:flex;flex-direction:column;gap:2px}
+.row{padding:13px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:9px}
+.row .nm{font-size:14.5px;font-weight:600;color:var(--txt);line-height:1.35}
+.row .nm i{display:block;font-style:normal;font-size:12.2px;color:var(--muted);font-weight:400;margin-top:2px;line-height:1.45}
+.row .val{font-family:var(--fd);font-size:20px;font-weight:800;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;transition:color .2s}
+.row .val.live{color:var(--gold)}
+.row .val small{font-family:var(--ff);font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--muted);margin-left:2px}
+input[type=range]{width:100%;height:22px;background:transparent;appearance:none;cursor:pointer;display:block}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:3px;background:var(--line2)}
+input[type=range]::-moz-range-track{height:4px;border-radius:3px;background:var(--line2)}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:var(--gold);
+  border:3px solid var(--bg);margin-top:-8px;box-shadow:0 0 0 1px var(--gold-d)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--gold);
+  border:3px solid var(--bg);box-shadow:0 0 0 1px var(--gold-d)}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(233,185,73,.5)}
+
+.tally{position:sticky;bottom:0;z-index:30;margin-top:8px;padding:13px 16px;
+  background:rgba(22,20,31,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--line2);border-radius:var(--r-s);
+  display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.tally b{font-family:var(--fd);font-size:22px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+.tally span{font-size:12.4px;color:var(--muted);line-height:1.45}
+
+/* opciones */
+.q{padding:20px 0;border-bottom:1px solid var(--line)}
+.q:first-child{padding-top:0}
+.q:last-child{border-bottom:0;padding-bottom:0}
+.q .qt{font-size:16px;font-weight:600;color:var(--txt);line-height:1.42;margin-bottom:13px;max-width:56ch}
+.q .qt u{text-decoration:none;color:var(--gold)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;width:0;height:0}
+.opt span{display:block;padding:9px 15px;border:1px solid var(--line2);border-radius:100px;
+  font-size:13.4px;font-weight:600;color:var(--txt2);cursor:pointer;line-height:1.35;transition:all .17s ease;background:var(--card2)}
+.opt span:hover{border-color:var(--muted);color:var(--txt)}
+.opt input:checked+span{background:var(--gold);border-color:var(--gold);color:#0A0910}
+.opt input:focus-visible+span{outline:2px solid var(--gold);outline-offset:3px}
+
+/* botones */
+.acts{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.btn{font-family:var(--ff);font-size:14.5px;font-weight:700;letter-spacing:.01em;padding:14px 28px;border-radius:100px;
+  border:1px solid var(--gold);background:var(--gold);color:#0A0910;cursor:pointer;transition:transform .16s ease,filter .16s ease}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border-color:var(--line2);color:var(--txt2)}
+.btn.ghost:hover{border-color:var(--muted);color:var(--txt);filter:none}
+.btn.small{padding:10px 19px;font-size:13px}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none;filter:none}
+
+/* ---------- resultado ---------- */
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.verdict{grid-template-columns:1fr}}
+.metric{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;position:relative;overflow:hidden}
+.metric .k{font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px}
+.metric .v{font-family:var(--fd);font-size:clamp(46px,10vw,70px);font-weight:800;line-height:.95;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;color:var(--gold)}
+.metric .v small{font-size:.4em;font-weight:700;letter-spacing:0;margin-left:3px}
+.metric .d{font-size:13px;color:var(--txt2);line-height:1.5;margin-top:10px}
+.metric.rose .v{color:var(--rose)} .metric.green .v{color:var(--green)} .metric.red .v{color:var(--red)}
+.pill{display:inline-block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+  padding:4px 11px;border-radius:100px;border:1px solid currentColor;margin-top:12px}
+.pill.gold{color:var(--gold)} .pill.rose{color:var(--rose)} .pill.green{color:var(--green)} .pill.red{color:var(--red)}
+
+/* barra de la semana */
+.weekbar{position:relative;margin:46px 0 0}
+.weekbar .track{display:flex;height:56px;border-radius:8px;overflow:hidden;background:var(--card2);border:1px solid var(--line2)}
+.weekbar .sg{display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;color:#0A0910;
+  overflow:hidden;white-space:nowrap;transition:width .8s cubic-bezier(.2,.75,.3,1)}
+.weekbar .sg.motor{background:linear-gradient(180deg,#F2C960,var(--gold))}
+.weekbar .sg.sosten{background:linear-gradient(180deg,#4A4459,#3A3548);color:var(--txt2)}
+.weekbar .sg.esc{background:linear-gradient(180deg,#FF6B9E,var(--rose))}
+.weekbar .line{position:absolute;top:-11px;bottom:-11px;width:2px;background:var(--txt);opacity:.85}
+.weekbar .line::after{content:attr(data-l);position:absolute;top:-19px;left:0;transform:translateX(-50%);
+  font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--txt);white-space:nowrap}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:34px}
+.legend div{display:flex;align-items:baseline;gap:8px;font-size:12.4px;color:var(--muted);line-height:1.4}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block;flex:none;transform:translateY(0)}
+.legend b{color:var(--txt);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* mapa */
+.mapwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mapwrap svg{display:block;width:100%;min-width:460px;height:auto}
+
+/* cadena aritmética */
+.chain{display:flex;flex-direction:column;gap:0}
+.chain .ln{display:grid;grid-template-columns:26px 1fr auto;gap:14px;align-items:baseline;padding:12px 0;border-bottom:1px dashed var(--line)}
+.chain .ln:last-child{border-bottom:0}
+.chain .ix{font-size:10px;font-weight:700;color:var(--gold-d);letter-spacing:.1em;font-variant-numeric:tabular-nums}
+.chain .tx{font-size:14px;color:var(--txt2);line-height:1.5}
+.chain .rs{font-family:var(--fd);font-size:20px;font-weight:800;color:var(--txt);white-space:nowrap;font-variant-numeric:tabular-nums}
+.chain .ln.final .rs{color:var(--green);font-size:26px}
+.chain .ln.final .tx{color:var(--txt);font-weight:600}
+
+/* perfil / giro */
+.turn{display:grid;gap:0}
+.turn .t{display:grid;grid-template-columns:104px 1fr;gap:0;border-bottom:1px solid var(--line)}
+.turn .t:last-child{border-bottom:0}
+@media(max-width:600px){.turn .t{grid-template-columns:1fr;gap:6px;padding:16px 0}}
+.turn .t>.a{padding:16px 14px 16px 0;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--muted);line-height:1.6}
+@media(max-width:600px){.turn .t>.a{padding:0}}
+.turn .t>.b{padding:16px 0}
+@media(max-width:600px){.turn .t>.b{padding:0}}
+.turn .t.hit>.a{color:var(--rose)}
+.turn .t.hit .b{font-family:var(--fd);font-size:18px;line-height:1.5;color:var(--txt)}
+
+.plan{counter-reset:pl}
+.plan li{list-style:none;display:grid;grid-template-columns:30px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.plan li:last-child{border-bottom:0}
+.plan li span{grid-column:2}
+.plan li::before{counter-increment:pl;grid-column:1;content:counter(pl);font-family:var(--fd);font-size:17px;font-weight:800;color:var(--gold)}
+.plan li .h{display:block;font-weight:650;color:var(--txt);font-size:14.6px;margin-bottom:2px}
+.plan li .s{display:block;font-size:13.2px;color:var(--muted);line-height:1.55}
+
+.mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:12px}
+.mini>div{background:var(--card2);border:1px solid var(--line);border-radius:var(--r-s);padding:14px 16px}
+.mini b{display:block;font-size:13.6px;color:var(--txt);margin-bottom:3px}
+.mini span{display:block;font-size:12.3px;color:var(--muted);line-height:1.5}
+
+.foot{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.65}
+.foot b{color:var(--txt2);font-weight:600}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--gold);color:#0A0910;
+  font-size:13.5px;font-weight:700;padding:11px 22px;border-radius:100px;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;z-index:99}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.hidden{display:none !important}
+
+@media print{
+  body{background:#fff;color:#111}
+  .rail,.acts,.toast{display:none !important}
+  .card,.metric{border-color:#ccc;background:#fff}
+  h1,.metric .v{-webkit-text-fill-color:#111;color:#111}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="rail hide" id="rail">
+    <div class="bar" id="railBar"></div>
+    <div class="lbl"><b id="railName">Paso 1</b><span id="railCount">1 / 4</span></div>
+  </div>
+
+  <main>
+
+    <!-- ===================== 0. PORTADA ===================== -->
+    <section class="step on" data-step="0">
+      <div class="stack-l">
+        <div>
+          <span class="kick">Diagnóstico · 3 minutos · Sin registro</span>
+          <h1>Calculadora de Procrastinación Productiva</h1>
+          <p class="lede">La mayoría no procrastina viendo series. Procrastina <em>trabajando</em>. Esta calculadora mide qué parte de tu semana mueve de verdad tu negocio, y nombra la decisión que llevas esquivando con la agenda llena.</p>
+        </div>
+
+        <div class="card gold">
+          <h4>Cómo funciona</h4>
+          <p>Cada bloque de tu semana se mide en <strong>dos ejes a la vez</strong>: cuánto <strong>mueve</strong> el negocio y cuánta <strong>exposición</strong> te cuesta — a que te digan que no, a decir tu precio en voz alta, a incomodar.</p>
+          <p>Casi todo lo que llena una semana ocupada puntúa bajo en el primer eje y bajo en el segundo. Es cómodo <em>y</em> parece trabajo. Por eso no se nota.</p>
+          <p style="margin-bottom:0">Al final vas a ver tu semana dibujada en esos dos ejes. La parte interesante no es dónde están tus horas. Es <strong>la esquina donde no hay ninguna</strong>.</p>
+        </div>
+
+        <div class="acts">
+          <button class="btn" data-go="1">Medir mi semana</button>
+        </div>
+        <p class="note">Al terminar se guarda tu resultado <strong>sin nombre y sin email</strong>, para poder estudiar qué patrones se repiten. Ver el diagnóstico no te pide registrarte: dejar tus datos es opcional y va al final, cuando ya has visto todo.</p>
+      </div>
+    </section>
+
+    <!-- ===================== 1. CONTEXTO ===================== -->
+    <section class="step" data-step="1">
+      <div class="stack-l">
+        <div>
+          <span class="kick">Paso 1 de 4</span>
+          <h2>Cuatro datos para poder calcular</h2>
+          <p>Aproximados está bien. Nadie te va a auditar: los números son para ti.</p>
+        </div>
+
+        <div class="card">
+          <div class="fields">
+            <div class="field">
+              <label for="q-nombre">Tu nombre (opcional)</label>
+              <input type="text" id="q-nombre" placeholder="Para el informe" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="q-horas">Horas que trabajas por semana</label>
+              <input type="number" id="q-horas" value="40" min="4" max="100" step="1" inputmode="numeric">
+              <span class="hint">Todo lo que consideras trabajo, incluido el móvil del domingo.</span>
+            </div>
+            <div class="field">
+              <label for="q-ticket">Precio medio de lo que vendes</label>
+              <div class="money">
+                <input type="text" id="q-moneda" value="$" maxlength="3" aria-label="Moneda">
+                <input type="number" id="q-ticket" value="300" min="1" step="1" inputmode="numeric">
+              </div>
+              <span class="hint">Lo que factura un cliente típico en una compra.</span>
+            </div>
+            <div class="field">
+              <label for="q-cierre">De cada 10 que hablan contigo, ¿cuántas compran?</label>
+              <select id="q-cierre">
+                <option value="1">1 de cada 10</option>
+                <option value="2" selected>2 de cada 10</option>
+                <option value="3">3 de cada 10</option>
+                <option value="4">4 de cada 10</option>
+                <option value="5">5 de cada 10</option>
+                <option value="6">6 de cada 10</option>
+                <option value="7">7 o más de cada 10</option>
+              </select>
+              <span class="hint">Si nunca lo has contado, deja 2.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="acts">
+          <button class="btn ghost small" data-go="0">Atrás</button>
+          <button class="btn" data-go="2">Siguiente</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 2. REPARTO ===================== -->
+    <section class="step" data-step="2">
+      <div class="stack-l">
+        <div>
+          <span class="kick">Paso 2 de 4</span>
+          <h2>Reparte una semana normal</h2>
+          <p>No la semana ideal. La de la semana pasada. Mueve cada barra hasta las horas que le dedicas.</p>
+        </div>
+
+        <div class="card">
+          <div class="rows" id="rows"></div>
+        </div>
+
+        <div class="tally" id="tally">
+          <b id="tallyN">0 h</b>
+          <span id="tallyT">repartidas de las 40 h que trabajas</span>
+        </div>
+
+        <div class="acts">
+          <button class="btn ghost small" data-go="1">Atrás</button>
+          <button class="btn" data-go="3" id="btn2">Siguiente</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 3. DECISIONES ===================== -->
+    <section class="step" data-step="3">
+      <div class="stack-l">
+        <div>
+          <span class="kick">Paso 3 de 4</span>
+          <h2>Las cinco decisiones incómodas</h2>
+          <p>Estas son las cinco cosas que más mueven un negocio pequeño y que más se posponen. ¿Dónde está cada una hoy?</p>
+        </div>
+        <div class="card"><div id="decs"></div></div>
+        <div class="acts">
+          <button class="btn ghost small" data-go="2">Atrás</button>
+          <button class="btn" data-go="4">Siguiente</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 4. CONDUCTA ===================== -->
+    <section class="step" data-step="4">
+      <div class="stack-l">
+        <div>
+          <span class="kick">Paso 4 de 4</span>
+          <h2>Tres preguntas sin trampa</h2>
+          <p>Las horas dicen mucho. Estas tres dicen el resto.</p>
+        </div>
+        <div class="card"><div id="cond"></div></div>
+        <div class="acts">
+          <button class="btn ghost small" data-go="3">Atrás</button>
+          <button class="btn" id="btnCalc">Ver mi diagnóstico</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 5. RESULTADO ===================== -->
+    <section class="step" data-step="5" id="out"></section>
+
+  </main>
+
+  <div class="foot">
+    <b>Sobre los números.</b> Esta calculadora no es un estudio: es un instrumento de dirección. Los coeficientes de cada bloque salen de una sola pregunta — si esa hora desapareciera de tu semana, ¿entraría menos dinero nuevo el mes que viene? Uno solo es variable, el del contenido, porque publicar solo mueve en proporción a lo que lo sigue. La aritmética del final es una multiplicación con los supuestos a la vista, no una promesa de ingresos. Puedes discutir cada número, y deberías. <b>Sobre tus datos.</b> El resultado se guarda de forma anónima; el nombre, el email o el Instagram solo se guardan si los escribes tú al final.
+  </div>
+</div>
+
+<div class="toast" id="toast">Copiado</div>
+
+<script>
+"use strict";
+
+/* ══════════════════════════════════════════════════════════════
+   CONFIGURACIÓN — edita solo estas líneas
+   ══════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  autora:  "Yoselvia",
+  ctaTexto:"Comenta o escríbeme la palabra DIRECCIÓN",
+  ctaUrl:  "",              // pon aquí tu enlace (Instagram, agenda, formulario). Vacío = sin botón.
+  ctaBoton:"Escribirme"
+};
+
+/* Conexión con tu base de datos. La clave es PÚBLICA a propósito: solo puede
+   ejecutar las dos funciones de guardado. No puede leer ni una fila. */
+const DB = {
+  url: "https://gxrtcsuiebeqwtlnxhjy.supabase.co",
+  key: "sb_publishable_p8HxC7ceRiR4NN0bwWHGHQ_CaZPpUFS"
+};
+
+let RESP_ID = null;
+
+async function rpc(fn, body){
+  const r = await fetch(DB.url + "/rest/v1/rpc/" + fn, {
+    method:"POST",
+    headers:{"apikey":DB.key,"Authorization":"Bearer "+DB.key,"Content-Type":"application/json"},
+    body:JSON.stringify(body)
+  });
+  const txt = await r.text();
+  if (!r.ok){
+    let m = txt;
+    try { m = JSON.parse(txt).message || txt; } catch(e){}
+    throw new Error(m);
+  }
+  return txt ? JSON.parse(txt) : null;
+}
+
+/* Guarda el resultado sin datos de contacto. Si falla, el informe sigue en
+   pantalla igual: nunca se le cuenta al usuario un problema que no es suyo. */
+async function guardar(r){
+  if (!DB.url || !DB.key) return;
+  try {
+    RESP_ID = await rpc("calc_guardar", {
+      p_movimiento: r.pct,
+      p_evasion: r.evasion,
+      p_banda: r.banda,
+      p_perfil: r.P.nm,
+      p_horas: +r.H.toFixed(1),
+      p_motor_h: +r.motorH.toFixed(1),
+      p_sosten_h: +r.sostenH.toFixed(1),
+      p_escondite_h: +r.escH.toFixed(1),
+      p_escondite_top: r.escTop,
+      p_decision_evitada: r.evitada ? r.evitada.t : null,
+      p_contenido_pot: state.h.contenido > 0 ? Math.round(r.C.contenido.k*100) : null,
+      p_moneda: r.mon,
+      p_ticket: r.ticket,
+      p_cierre: r.cierre,
+      p_reparto: state.h,
+      p_decisiones: state.dec,
+      p_conducta: state.cond,
+      p_user_agent: navigator.userAgent,
+      p_referrer: document.referrer
+    });
+  } catch(e){ RESP_ID = null; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODELO — cada bloque en tres materiales + su exposición
+   motor  : crea ingreso nuevo o decide la dirección
+   sosten : mantiene lo que ya existe
+   esc    : se siente productivo y no hace ninguna de las dos
+   exp    : exposición emocional (0 = nadie te puede decir que no)
+   ══════════════════════════════════════════════════════════════ */
+const BLOCKS = [
+  {id:"entrega",  nm:"Entregar a tus clientes actuales", sub:"Hacer el trabajo que ya te pagaron", corto:"Entregar",      motor:.07, sosten:.93, esc:.00, exp:.32, def:10},
+  {id:"mensajes", nm:"Responder mensajes, DMs y correos", sub:"Atender lo que llega",              corto:"Mensajes",      motor:.08, sosten:.52, esc:.40, exp:.24, def:6},
+  {id:"contenido",nm:"Crear contenido",                   sub:"Grabar, escribir, publicar",        corto:"Contenido",     motor:.20, sosten:.12, esc:.68, exp:.58, def:6, dyn:true},
+  {id:"pulir",    nm:"Pulir y arreglar",                  sub:"Editar, diseñar, la web, las herramientas, el orden visual", corto:"Pulir", motor:.05, sosten:.13, esc:.82, exp:.10, def:4},
+  {id:"formacion",nm:"Formarte",                          sub:"Cursos, tutoriales, pódcast, libros",corto:"Formarte",     motor:.06, sosten:.09, esc:.85, exp:.04, def:3},
+  {id:"admin",    nm:"Administración",                    sub:"Facturas, cuentas, papeleo, organizar",corto:"Admin",      motor:.03, sosten:.64, esc:.33, exp:.16, def:3},
+  {id:"reuniones",nm:"Reuniones y coordinación",          sub:"Equipo, colaboradores, llamadas internas",corto:"Reuniones",motor:.09, sosten:.47, esc:.44, exp:.41, def:2},
+  {id:"convers",  nm:"Conversaciones de venta",           sub:"Llamadas o reuniones con posibles clientes",corto:"Conversaciones",motor:.95, sosten:.05, esc:.00, exp:.90, def:2},
+  {id:"propuest", nm:"Propuestas y seguimiento",          sub:"Enviar la oferta y volver a escribir a quien no contestó",corto:"Propuestas",motor:.95, sosten:.05, esc:.00, exp:.96, def:1},
+  {id:"prospect", nm:"Buscar clientes nuevos",            sub:"Prospectar, pedir referidos, proponer colaboraciones",corto:"Prospectar",motor:.90, sosten:.05, esc:.05, exp:.84, def:1},
+  {id:"decidir",  nm:"Decidir",                           sub:"Revisar números, precios, a dónde va el negocio",corto:"Decidir",motor:.85, sosten:.15, esc:.00, exp:.70, def:2}
+];
+
+/* El contenido es el único bloque con coeficiente variable, y es deliberado:
+   publicar solo mueve el negocio en la medida en que algo lo sigue. Sin horas
+   de pedir, el mismo contenido es alcance, no ingreso — y cae al escondite.
+   Referencia: 1 hora de pedir por cada 3 de publicar = contenido a pleno motor. */
+function coef(b, h){
+  if (!b.dyn) return b;
+  const pedir = h.convers + h.propuest + h.prospect;
+  const necesita = 0.35 * h.contenido;
+  const k = necesita > 0 ? Math.min(1, pedir/necesita) : 1;
+  const motor = 0.20 + 0.35*k;
+  return {...b, motor, esc: 0.88 - motor, k};
+}
+
+const DECS = [
+  {id:"precio", t:"Subir el precio de algo que ya vendes.",                         corto:"subir el precio",           chk:s=>s.h.decidir < 1},
+  {id:"seguim", t:"Escribirle otra vez a quien pidió información y nunca respondió.",corto:"hacer el seguimiento",     chk:s=>s.h.propuest < 1},
+  {id:"propue", t:"Mandar la propuesta que llevas días redactando en la cabeza.",   corto:"mandar la propuesta",       chk:s=>(s.h.propuest + s.h.convers) < 2},
+  {id:"limite", t:"Poner un límite: un horario, un alcance, un cliente que drena.", corto:"poner el límite",           chk:s=>(s.h.entrega + s.h.mensajes) > .55*s.H},
+  {id:"soltar", t:"Soltar algo: un servicio, un cliente o una tarea que ya no te toca.",corto:"soltar lo que ya no te toca",chk:s=>s.escH > .35*s.H}
+];
+
+const DEC_OPTS = [
+  {t:"Ya está hecha",              v:0},
+  {t:"Lo pienso, pero no lo hago", v:2},
+  {t:"Llevo meses posponiéndolo",  v:3},
+  {t:"Ni me lo planteo",           v:3},
+  {t:"No aplica",                  v:null}
+];
+
+const CONDS = [
+  {id:"c1", t:"Cuando una tarea te da una pereza rara, ¿qué haces en los diez minutos siguientes?",
+   o:[{t:"Abro el correo o el móvil",v:2},{t:"Hago otra cosa de la lista, más fácil",v:2},{t:"La hago igual, aunque me cueste",v:0}]},
+  {id:"c2", t:"Al terminar la semana, ¿puedes nombrar <u>una</u> cosa concreta que movió el negocio?",
+   o:[{t:"Casi nunca",v:2},{t:"A veces",v:1},{t:"Sí, casi siempre",v:0}]},
+  {id:"c3", t:"Tu lista de tareas de hoy, ¿quién la escribió?",
+   o:[{t:"Lo que fue llegando",v:2},{t:"Mitad y mitad",v:1},{t:"Yo, ayer, a propósito",v:0}]}
+];
+
+/* ══════════════════════════════════════════════════════════════
+   PERFILES — el retrato, el giro y el movimiento
+   ══════════════════════════════════════════════════════════════ */
+const PERFILES = {
+  invisible:{
+    nm:"La Invisible",
+    frase:"“Estoy trabajando en mi marca.”",
+    retrato:"Publicas, escribes, apareces. Tu audiencia sabe quién eres. Y aun así casi nadie llega nunca al momento en el que se decide algo, porque ese momento no está en tu semana.",
+    giro:"Publicar te deja elegir cuándo te miran. Pedir, no. Lo que evitas no es vender: es el segundo exacto en que alguien puede decirte que no delante de ti, sin edición y sin borrador. Por eso tu semana está llena de audiencia y vacía de conversaciones.",
+    poder:"Eso se mueve. No con más contenido y no con más carácter: poniendo el “no” <em>antes</em> en la semana, en dosis pequeñas, contadas y con hora.",
+    mueve:["propuest","convers"]
+  },
+  perfeccionista:{
+    nm:"La Perfeccionista",
+    frase:"“Todavía no está listo.”",
+    retrato:"Terminas cosas que nadie te pidió. La web, la plantilla, el diseño, el sistema. Todo queda bien. Y todo tarda un poco más de lo que hacía falta.",
+    giro:"Pulir es la única parte del trabajo donde decides tú cuándo termina. Mientras esté sin terminar no se puede juzgar, y mientras no se pueda juzgar tú no puedes fallar. No estás mejorando el producto: estás retrasando el veredicto.",
+    poder:"Eso se mueve poniéndole fecha al veredicto antes que al producto. Enséñalo feo y con precio, y deja que lo pula la respuesta de alguien que paga.",
+    mueve:["propuest","decidir"]
+  },
+  alumna:{
+    nm:"La Eterna Alumna",
+    frase:"“Cuando termine de aprender esto, lo lanzo.”",
+    retrato:"Sabes más de tu tema que la mayoría de quienes ya cobran por él. Y sigues comprando el siguiente curso antes de aplicar el anterior.",
+    giro:"Aprender se siente idéntico a avanzar y no tiene riesgo: en una formación nadie te dice que no. Cada curso nuevo no te da una capacidad más, te da una excusa con fecha. No te falta información. Te falta permiso para cobrar por la que ya tienes.",
+    poder:"Eso se mueve con una regla sola: nada nuevo entra hasta que lo último que aprendiste esté vendido una vez.",
+    mueve:["convers","propuest"]
+  },
+  bombera:{
+    nm:"La Bombera",
+    frase:"“No paré en todo el día.”",
+    retrato:"Respondes rápido, resuelves, apagas. Eres la persona fiable de todas las conversaciones. Tu agenda la escribe quien te escribe.",
+    giro:"Responder rápido se siente responsable y además funciona: alguien te lo agradece en el momento. Lo que decides tú no te lo agradece nadie hoy. Por eso lo urgente siempre gana: paga en el día, y lo importante paga en meses. No es que no tengas tiempo. Es que tu tiempo tiene dueño y no eres tú.",
+    poder:"Eso se recupera bloqueando primero lo tuyo, no lo que sobra. Lo que sobra nunca sobra.",
+    mueve:["decidir","propuest"]
+  },
+  artesana:{
+    nm:"La Artesana",
+    frase:"“Si no lo hago yo, no sale igual.”",
+    retrato:"Entregas bien. Muy bien. Tus clientes te quieren. Y cada cliente nuevo te quita exactamente las horas que necesitarías para conseguir el siguiente.",
+    giro:"Entregar es lo único que ya sabes que te sale bien, y dentro del trabajo nadie te puede decir que no: ya te dijeron que sí. Tu negocio no crece despacio. Está construido para no crecer sin ti dentro. Eso no es falta de tiempo: es un techo con tu nombre escrito.",
+    poder:"Eso se mueve al revés de como parece. No es entregar más rápido: es reservar las horas de conseguir <em>antes</em> de aceptar el trabajo, no con lo que quede después.",
+    mueve:["prospect","decidir"]
+  },
+  empuja:{
+    nm:"La que ya empuja",
+    frase:"“Estoy haciendo lo que hay que hacer.”",
+    retrato:"Tu semana sí tiene motor. Pides, haces seguimiento, hablas con gente que puede comprar. No es lo habitual.",
+    giro:"Y por eso tu diagnóstico es distinto. Si estás empujando y el resultado no sube, la causa ya no está en tu agenda: está en el precio o en a quién se lo estás diciendo. Ese es un problema mucho mejor. No se arregla con más horas — se arregla con una decisión.",
+    poder:"Antes de añadir una hora más, mira el precio. Casi siempre el techo estaba ahí.",
+    mueve:["decidir","prospect"]
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════ */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const clamp = (n,a,b) => Math.max(a, Math.min(b, n));
+const fmtN  = n => new Intl.NumberFormat("es-ES").format(Math.round(n));
+const fmtH  = n => (Math.round(n*10)/10).toString().replace(".", ",");
+const esc_  = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const state = { step:0, h:{}, dec:{}, cond:{} };
+BLOCKS.forEach(b => state.h[b.id] = b.def);
+
+/* ---------- pintar paso 2 ---------- */
+$("#rows").innerHTML = BLOCKS.map(b => `
+  <div class="row">
+    <div class="top">
+      <div class="nm">${b.nm}<i>${b.sub}</i></div>
+      <div class="val" id="v-${b.id}">${fmtH(b.def)}<small>h</small></div>
+    </div>
+    <input type="range" id="r-${b.id}" min="0" max="30" step="0.5" value="${b.def}"
+           aria-label="${esc_(b.nm)}, horas por semana">
+  </div>`).join("");
+
+BLOCKS.forEach(b => {
+  const r = $("#r-"+b.id), v = $("#v-"+b.id);
+  r.addEventListener("input", () => {
+    state.h[b.id] = parseFloat(r.value);
+    v.innerHTML = fmtH(state.h[b.id]) + "<small>h</small>";
+    v.classList.toggle("live", state.h[b.id] > 0);
+    tally();
+  });
+  v.classList.toggle("live", b.def > 0);
+});
+
+function tally(){
+  const t = BLOCKS.reduce((a,b) => a + state.h[b.id], 0);
+  const d = parseFloat($("#q-horas").value) || 40;
+  $("#tallyN").textContent = fmtH(t) + " h";
+  const diff = t - d;
+  let msg;
+  if (t === 0)                 msg = "Mueve al menos una barra para continuar.";
+  else if (Math.abs(diff) <= 3) msg = "repartidas — cuadra con las " + fmtH(d) + " h que dijiste.";
+  else if (diff > 0)            msg = "repartidas. Dijiste " + fmtH(d) + " h: te sobran " + fmtH(diff) + " h. Calcularemos sobre lo que repartas.";
+  else                          msg = "repartidas. Dijiste " + fmtH(d) + " h: faltan " + fmtH(-diff) + " h por colocar.";
+  $("#tallyT").textContent = msg;
+  $("#btn2").disabled = t === 0;
+}
+
+/* ---------- pintar pasos 3 y 4 ---------- */
+$("#decs").innerHTML = DECS.map(d => `
+  <div class="q">
+    <div class="qt">${d.t}</div>
+    <div class="opts">${DEC_OPTS.map((o,i) => `
+      <label class="opt"><input type="radio" name="d-${d.id}" value="${i}"><span>${o.t}</span></label>`).join("")}
+    </div>
+  </div>`).join("");
+
+$("#cond").innerHTML = CONDS.map(c => `
+  <div class="q">
+    <div class="qt">${c.t}</div>
+    <div class="opts">${c.o.map((o,i) => `
+      <label class="opt"><input type="radio" name="${c.id}" value="${i}"><span>${o.t}</span></label>`).join("")}
+    </div>
+  </div>`).join("");
+
+document.addEventListener("change", e => {
+  const n = e.target.name || "";
+  if (n.startsWith("d-")) state.dec[n.slice(2)] = parseInt(e.target.value,10);
+  else if (n.startsWith("c"))  state.cond[n]    = parseInt(e.target.value,10);
+});
+$("#q-horas").addEventListener("input", tally);
+
+/* ---------- navegación ---------- */
+const RAIL = ["Tus datos","Tu semana","Las decisiones","Tres preguntas"];
+function go(n){
+  state.step = n;
+  $$(".step").forEach(s => s.classList.toggle("on", +s.dataset.step === n));
+  const rail = $("#rail");
+  rail.classList.toggle("hide", n === 0 || n === 5);
+  if (n >= 1 && n <= 4){
+    $("#railBar").innerHTML = RAIL.map((_,i) => `<div class="seg${i < n ? " on" : ""}"></div>`).join("");
+    $("#railName").textContent  = RAIL[n-1];
+    $("#railCount").textContent = n + " / 4";
+  }
+  window.scrollTo({top:0, behavior:"instant"});
+}
+$$("[data-go]").forEach(b => b.addEventListener("click", () => go(+b.dataset.go)));
+$("#btnCalc").addEventListener("click", calcular);
+tally();
+
+/* ══════════════════════════════════════════════════════════════
+   CÁLCULO
+   ══════════════════════════════════════════════════════════════ */
+function calcular(){
+  const H = BLOCKS.reduce((a,b) => a + state.h[b.id], 0);
+  if (!H) { go(2); return; }
+
+  const C = {}; BLOCKS.forEach(b => C[b.id] = coef(b, state.h));
+  const motorH  = BLOCKS.reduce((a,b) => a + state.h[b.id]*C[b.id].motor,  0);
+  const sostenH = BLOCKS.reduce((a,b) => a + state.h[b.id]*C[b.id].sosten, 0);
+  const escH    = BLOCKS.reduce((a,b) => a + state.h[b.id]*C[b.id].esc,    0);
+  const mov = motorH/H, sos = sostenH/H, es = escH/H;
+
+  const s = { h:state.h, H, escH, motorH, sostenH, mov };
+
+  /* --- evasión: decisiones (60%) + conducta (40%) --- */
+  let dSum = 0, dMax = 0, dList = [];
+  DECS.forEach((d,di) => {
+    const i = state.dec[d.id];
+    if (i === undefined || DEC_OPTS[i].v === null) return;
+    let v = DEC_OPTS[i].v;
+    const corroborado = d.chk(s) && v > 0;
+    if (corroborado) v += 1;                       // las horas confirman lo que dijiste
+    dSum += v; dMax += 4;
+    dList.push({...d, idx:di, v, corroborado, resp:DEC_OPTS[i].t, ciega:i === 3});
+  });
+  const cSum = Object.keys(state.cond).reduce((a,k) => {
+    const c = CONDS.find(x => x.id === k); return a + c.o[state.cond[k]].v;
+  }, 0);
+  const cMax = 6;
+  const evasion = dMax
+    ? Math.round(100*(0.6*(dSum/dMax) + 0.4*(cSum/cMax)))
+    : Math.round(100*(cSum/cMax));
+
+  dList.sort((a,b) => b.v - a.v || a.idx - b.idx);
+  const evitada = dList.length && dList[0].v > 0 ? dList[0] : null;
+
+  /* --- perfil --- */
+  const escBy = {}; BLOCKS.forEach(b => escBy[b.id] = state.h[b.id]*C[b.id].esc);
+  const escTop = Object.keys(escBy).sort((a,b) => escBy[b]-escBy[a])[0];
+  const pedir = state.h.convers + state.h.propuest + state.h.prospect;
+  let pk;
+  if (mov >= .30)                                              pk = "empuja";
+  else if (pedir <= Math.max(1, .06*H) && state.h.contenido >= Math.max(2, .10*H)) pk = "invisible";
+  else if ((state.h.entrega + state.h.mensajes) >= .55*H && mov < .20) pk = "artesana";
+  else if (escTop === "pulir")                                 pk = "perfeccionista";
+  else if (escTop === "formacion")                             pk = "alumna";
+  else if (["mensajes","reuniones","admin"].includes(escTop))  pk = "bombera";
+  else if (pedir <= Math.max(1, .08*H))                        pk = "invisible";
+  else                                                         pk = "bombera";
+  const P = PERFILES[pk];
+
+  /* --- banda de movimiento --- */
+  const pct = Math.round(mov*100);
+  let banda, bandaC, bandaTx;
+  if (pct >= 30)      { banda="Zona de motor";  bandaC="green"; bandaTx="Tu semana está construida para crecer."; }
+  else if (pct >= 20) { banda="En la línea";    bandaC="gold";  bandaTx="Justo en el mínimo. Cualquier semana rara te tira por debajo."; }
+  else if (pct >= 10) { banda="Bajo la línea";  bandaC="rose";  bandaTx="Tu negocio se sostiene. No avanza."; }
+  else                { banda="Escondite";      bandaC="red";   bandaTx="Prácticamente nada de tu semana crea ingreso nuevo."; }
+
+  /* --- la aritmética --- */
+  const mon    = ($("#q-moneda").value || "$").trim();
+  const ticket = clamp(parseFloat($("#q-ticket").value) || 300, 1, 1e9);
+  const cierre = parseInt($("#q-cierre").value, 10) || 2;
+  const libera = escH/3;
+  const conv   = Math.floor(libera/0.75);
+  const convM  = conv*4;
+  const ventas = convM*cierre/10;
+  const ingreso= ventas*ticket;
+
+  const nombre = ($("#q-nombre").value || "").trim();
+  const saludo = nombre ? esc_(nombre) + ", tu" : "Tu";
+
+  /* --- lectura combinada --- */
+  const lect = (pct < 20 && evasion >= 50)
+      ? "Semana ocupada, negocio quieto: el patrón completo. Las horas y las decisiones dicen lo mismo, así que no es una mala racha — es un diseño."
+    : (pct < 20 && evasion < 50)
+      ? "Curioso: dices que las decisiones incómodas no te frenan, pero tu semana no tiene dónde ejecutarlas. Sabes qué hay que hacer y no le has dado hora."
+    : (pct >= 20 && evasion >= 50)
+      ? "Tu semana sí tiene motor, pero hay decisiones grandes atascadas. No te falta actividad: te falta cerrar algo que llevas meses abriendo."
+      : "Semana con motor y decisiones al día. A partir de aquí el freno ya no es tu agenda.";
+
+  render({H,mov,sos,es,motorH,sostenH,escH,pct,banda,bandaC,bandaTx,evasion,evitada,dList,C,
+          P,pk,escTop,escBy,mon,ticket,cierre,libera,conv,convM,ventas,ingreso,saludo,nombre,lect,cSum});
+  go(5);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MAPA — impacto (x) × exposición (y)
+   ══════════════════════════════════════════════════════════════ */
+function mapa(C){
+  const W=680, Hh=506, L=64, R=30, T=42, B=58;
+  // el eje de impacto va en raiz: casi todo lo que llena una semana vive pegado
+  // al cero, y en escala lineal se amontona en un borron ilegible
+  const px = v => L + Math.sqrt(v)*(W-L-R);
+  const py = v => Hh-B - v*(Hh-B-T);
+  const acts = BLOCKS.filter(b => state.h[b.id] > 0);
+  const maxH = Math.max(...acts.map(b => state.h[b.id]), 1);
+  const rad  = h => 5 + 15*Math.sqrt(h/maxH);
+
+  const dots = acts.map(b => ({b, c:C[b.id], x:px(C[b.id].motor), y:py(b.exp), r:rad(state.h[b.id]),
+                               dx:C[b.id].motor > .5, dy:b.exp > .5}));
+
+  // separacion de burbujas: solo un empujon visual, y con tope en la linea del
+  // cuadrante — ningun bloque puede cruzar a un cuadrante que no es el suyo
+  const clampX = d => { const lo = d.dx ? px(.5)+d.r : L+d.r, hi = d.dx ? px(1)-d.r : px(.5)-d.r;
+                        d.x = Math.max(lo, Math.min(hi, d.x)); };
+  const clampY = d => { const lo = d.dy ? T+d.r : py(.5)+d.r, hi = d.dy ? py(.5)-d.r : Hh-B-d.r;
+                        d.y = Math.max(lo, Math.min(hi, d.y)); };
+  for (let it=0; it<160; it++){
+    let quiet = true;
+    for (let i=0;i<dots.length;i++) for (let j=i+1;j<dots.length;j++){
+      const a = dots[i], b = dots[j];
+      let ddx = b.x-a.x, ddy = b.y-a.y;
+      let dd = Math.hypot(ddx, ddy);
+      if (dd < 0.01){ ddx = (i%2?1:-1)*0.7; ddy = 0.7; dd = 1; }
+      const min = a.r + b.r + 5;
+      if (dd < min){
+        const f = (min-dd)/dd*0.5;
+        a.x -= ddx*f; a.y -= ddy*f; b.x += ddx*f; b.y += ddy*f;
+        clampX(a); clampY(a); clampX(b); clampY(b);
+        quiet = false;
+      }
+    }
+    if (quiet) break;
+  }
+  dots.sort((a,c) => c.r - a.r);
+
+  // etiquetas al costado: el racimo se apila en vertical, asi que el hueco
+  // libre esta siempre a los lados, no debajo
+  const mid = (L + px(1))/2;
+  const labs = dots.map(d => {
+    const left = d.x > mid;
+    return {d, left, tx: d.x + (left ? -(d.r+7) : d.r+7), ty: d.y + 4};
+  }).sort((a,b) => a.ty - b.ty);
+  for (let i=1;i<labs.length;i++){
+    const a = labs[i-1], b = labs[i];
+    if (a.left === b.left && Math.abs(a.tx - b.tx) < 78 && b.ty - a.ty < 13) b.ty = a.ty + 13;
+  }
+
+  const cornerH = acts.filter(b => C[b.id].motor > .5 && b.exp > .5)
+                      .reduce((a,b) => a + state.h[b.id], 0);
+  const cx = (px(.5)+px(1))/2, cy = py(.75);
+
+  return `
+<svg viewBox="0 0 ${W} ${Hh}" role="img"
+     aria-label="Mapa de tu semana: impacto en el negocio frente a exposición emocional. En la esquina de alto impacto y alta exposición hay ${fmtH(cornerH)} horas.">
+  <defs>
+    <linearGradient id="cg" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#E9B949" stop-opacity=".13"/>
+      <stop offset="100%" stop-color="#E9B949" stop-opacity=".03"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="${px(.5)}" y="${py(1)}" width="${px(1)-px(.5)}" height="${py(.5)-py(1)}"
+        fill="url(#cg)" stroke="#E9B949" stroke-opacity=".34" stroke-dasharray="4 5" rx="4"/>
+
+  <line x1="${L}" y1="${py(.5)}" x2="${px(1)}" y2="${py(.5)}" stroke="#2C2839"/>
+  <line x1="${px(.5)}" y1="${T}" x2="${px(.5)}" y2="${Hh-B}" stroke="#2C2839"/>
+  <line x1="${L}" y1="${Hh-B}" x2="${px(1)}" y2="${Hh-B}" stroke="#3D374F"/>
+  <line x1="${L}" y1="${T}" x2="${L}" y2="${Hh-B}" stroke="#3D374F"/>
+
+  <text x="${L}" y="${Hh-16}" fill="#948DA8" font-size="10.5" font-weight="700" letter-spacing="2"
+        font-family="Inter,sans-serif">NO MUEVE NADA</text>
+  <text x="${px(1)}" y="${Hh-16}" text-anchor="end" fill="#E9B949" font-size="10.5" font-weight="700" letter-spacing="2"
+        font-family="Inter,sans-serif">MUEVE EL NEGOCIO</text>
+  <text transform="translate(20,${Hh-B}) rotate(-90)" fill="#948DA8" font-size="10.5" font-weight="700" letter-spacing="2"
+        font-family="Inter,sans-serif">CÓMODO</text>
+  <text transform="translate(20,${T}) rotate(-90)" text-anchor="end" fill="#FF4D8D" font-size="10.5" font-weight="700" letter-spacing="2"
+        font-family="Inter,sans-serif">EXPONE</text>
+
+  ${cornerH < .5 ? `
+  <text x="${cx}" y="${cy-8}" text-anchor="middle" fill="#E9B949" font-size="13" font-weight="800"
+        font-family="Inter,sans-serif">Aquí no hay nada</text>
+  <text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#948DA8" font-size="11.5"
+        font-family="Inter,sans-serif">y aquí es donde se decide</text>` : `
+  <text x="${cx}" y="${T-11}" text-anchor="middle" fill="#E9B949" font-size="11" font-weight="700" letter-spacing="1.4"
+        font-family="Inter,sans-serif">LA ESQUINA QUE DECIDE · ${fmtH(cornerH)} H</text>`}
+
+  ${dots.map(d => {
+    const c = d.c.motor > .5 ? "#E9B949" : (d.c.esc > .5 ? "#FF4D8D" : "#6E6684");
+    return `<circle cx="${d.x.toFixed(1)}" cy="${d.y.toFixed(1)}" r="${d.r.toFixed(1)}"
+             fill="${c}" fill-opacity=".17" stroke="${c}" stroke-width="1.5"/>
+            <text x="${d.x.toFixed(1)}" y="${(d.y+4).toFixed(1)}" text-anchor="middle" fill="${c}"
+             font-size="11" font-weight="800" font-family="Inter,sans-serif">${fmtH(state.h[d.b.id])}</text>`;
+  }).join("")}
+
+  ${labs.map(l => `<text x="${l.tx.toFixed(1)}" y="${l.ty.toFixed(1)}" text-anchor="${l.left?"end":"start"}"
+      fill="#948DA8" font-size="10.5" font-weight="600" font-family="Inter,sans-serif">${l.d.b.corto}</text>`).join("")}
+</svg>`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   INFORME
+   ══════════════════════════════════════════════════════════════ */
+function render(r){
+  const mp = (r.mov*100).toFixed(0), sp = (r.sos*100).toFixed(0), ep = (r.es*100).toFixed(0);
+  const linea = 20;
+  const escTopNm = (BLOCKS.find(b => b.id === r.escTop) || {}).nm || "";
+  const mueveA   = r.P.mueve.map(id => (BLOCKS.find(b => b.id === id)||{}).corto).filter(Boolean);
+  const alAno    = r.escH*46;
+
+  const cadena = r.escH < 1.5
+    ? `<p>Tu semana casi no tiene relleno: solo <strong>${fmtH(r.escH)} h</strong> caen en tareas que ni mueven ni sostienen. El problema, si lo hay, no está en lo que sobra. Está en lo que falta.</p>`
+    : `<div class="chain">
+        <div class="ln"><span class="ix">01</span><span class="tx">Horas de escondite en tu semana</span><span class="rs">${fmtH(r.escH)} h</span></div>
+        <div class="ln"><span class="ix">02</span><span class="tx">Si recuperas solo <strong>un tercio</strong> (el resto lo dejamos: algo de eso hace falta)</span><span class="rs">${fmtH(r.libera)} h</span></div>
+        <div class="ln"><span class="ix">03</span><span class="tx">Conversaciones que caben ahí, a 45 min cada una con su seguimiento</span><span class="rs">${r.conv} / semana</span></div>
+        <div class="ln"><span class="ix">04</span><span class="tx">Al mes</span><span class="rs">${r.convM}</span></div>
+        <div class="ln"><span class="ix">05</span><span class="tx">A tu cierre declarado, ${r.cierre} de cada 10</span><span class="rs">${fmtH(r.ventas)} ventas</span></div>
+        <div class="ln final"><span class="ix">06</span><span class="tx">A tu precio medio de ${esc_(r.mon)}${fmtN(r.ticket)}</span><span class="rs">${esc_(r.mon)}${fmtN(r.ingreso)}/mes</span></div>
+       </div>
+       <p class="note" style="margin-top:16px">Esto no es una previsión ni una promesa. Es una multiplicación con los supuestos a la vista. Baja el cierre, sube los minutos por conversación, quita horas: sigue saliendo un número que hoy no existe.</p>`;
+
+  const evitadaHTML = r.evitada ? `
+    <div class="card rose">
+      <h4>La decisión que estás evitando</h4>
+      <h3 style="margin-bottom:12px">${r.evitada.t}</h3>
+      <p>Dijiste: <em>“${esc_(r.evitada.resp)}”</em>.
+      ${r.evitada.corroborado
+        ? `Y tus horas lo confirman por su cuenta — no hay tiempo asignado en tu semana a esa decisión. Cuando las dos mediciones coinciden, deja de ser una sensación.`
+        : `Aparece la primera de las cinco.`}</p>
+      ${r.evitada.ciega ? `<p><strong>“Ni me lo planteo” no es lo mismo que “no aplica”.</strong> Es la forma más limpia de posponer: la que no deja rastro en la lista de pendientes porque nunca entró en la lista.</p>` : ""}
+      <p style="margin-bottom:0">Mientras esa decisión siga abierta, cualquier hora extra que le metas al negocio se va a repartir entre las otras cosas. Las horas van donde no duele.</p>
+    </div>` : "";
+
+  $("#out").innerHTML = `
+  <div class="stack-l">
+
+    <div>
+      <span class="kick">Tu diagnóstico${r.nombre ? " · " + esc_(r.nombre) : ""}</span>
+      <h2>${r.saludo} semana mueve el negocio un ${mp}%.</h2>
+      <p class="lede">${r.bandaTx}</p>
+    </div>
+
+    <div class="verdict">
+      <div class="metric">
+        <div class="k">Índice de movimiento</div>
+        <div class="v">${mp}<small>%</small></div>
+        <div class="d">De tus ${fmtH(r.H)} h semanales, <strong>${fmtH(r.motorH)} h</strong> crean ingreso nuevo o deciden a dónde va el negocio.</div>
+        <span class="pill ${r.bandaC}">${r.banda}</span>
+      </div>
+      <div class="metric rose">
+        <div class="k">Índice de evasión</div>
+        <div class="v">${r.evasion}<small>%</small></div>
+        <div class="d">Cuánto de lo que más movería está aparcado — según tus decisiones y tu conducta, no según tus horas.</div>
+        <span class="pill rose">${r.evasion>=66?"Alta":r.evasion>=40?"Media":"Baja"}</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Lectura combinada</h4>
+      <p style="margin-bottom:0">${r.lect}</p>
+    </div>
+
+    <!-- ---------- la semana ---------- -->
+    <div>
+      <h3>Tu semana, en los tres materiales de los que está hecha</h3>
+      <p class="note">Cada bloque se reparte entre lo que crea, lo que mantiene y lo que solo ocupa. Casi ninguna tarea es una cosa sola.</p>
+      <div class="weekbar">
+        <div class="track">
+          <div class="sg motor"  style="width:${mp}%"  title="Motor">${r.mov>.13?mp+"%":""}</div>
+          <div class="sg sosten" style="width:${sp}%"  title="Sostén">${r.sos>.13?sp+"%":""}</div>
+          <div class="sg esc"    style="width:${ep}%"  title="Escondite">${r.es>.13?ep+"%":""}</div>
+        </div>
+        <div class="line" style="left:${linea}%" data-l="Línea del motor · 20%"></div>
+      </div>
+      <div class="legend">
+        <div><i style="background:var(--gold)"></i><span><b>Motor · ${fmtH(r.motorH)} h</b><br>Crea ingreso nuevo o decide la dirección</span></div>
+        <div><i style="background:#4A4459"></i><span><b>Sostén · ${fmtH(r.sostenH)} h</b><br>Mantiene lo que ya existe. Necesario, no acumulativo</span></div>
+        <div><i style="background:var(--rose)"></i><span><b>Escondite · ${fmtH(r.escH)} h</b><br>Se siente productivo y no hace ninguna de las dos</span></div>
+      </div>
+      ${contenidoNota(r)}
+      <div class="card" style="margin-top:24px">
+        <h4>Por qué la línea está en el 20%</h4>
+        <p style="margin-bottom:0">No es un dato de un estudio: es aritmética. Si de cinco días de trabajo ninguno entero se dedica a conseguir, el mes que viene solo puede facturar lo que ya estaba en marcha este. Un día de cada cinco es el mínimo para que el negocio dependa de ti y no de la inercia. Tú estás en <strong>${mp}%</strong>: <strong>${fmtH(r.motorH/(r.H/5))} días de cinco</strong>${r.mov>=.2 ? ", por encima de la línea." : "."}</p>
+      </div>
+    </div>
+
+    <!-- ---------- el mapa ---------- -->
+    <div>
+      <h3>El mapa: impacto contra incomodidad</h3>
+      <p class="note">Cada círculo es un bloque de tu semana; su tamaño, las horas que le das. A la derecha, lo que mueve el negocio. Arriba, lo que te expone a un no.</p>
+      <div class="card" style="padding:14px"><div class="mapwrap">${mapa(r.C)}</div></div>
+      ${lecturaMapa(r)}
+    </div>
+
+    ${evitadaHTML}
+
+    <!-- ---------- el perfil ---------- -->
+    <div>
+      <span class="kick">Tu patrón</span>
+      <h2>${r.P.nm}</h2>
+      <p class="lede" style="margin-bottom:22px">${r.P.retrato}</p>
+      <div class="card">
+        <div class="turn">
+          <div class="t"><div class="a">Lo que dices</div><div class="b"><p style="margin:0">${r.P.frase}</p></div></div>
+          <div class="t"><div class="a">La cuenta</div><div class="b"><p style="margin:0">${cuenta(r)}</p></div></div>
+          <div class="t hit"><div class="a">El giro</div><div class="b">${r.P.giro}</div></div>
+          <div class="t"><div class="a">Y por eso</div><div class="b"><p style="margin:0">${r.P.poder}</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- aritmética ---------- -->
+    <div>
+      <h3>Lo que hay dentro de tus horas de escondite</h3>
+      <p class="note">${fmtH(r.escH)} h a la semana son <strong>${fmtH(alAno)} h al año</strong>: ${fmtH(alAno/8)} jornadas completas. Esto es lo que cabe si recuperas solo un tercio.</p>
+      <div class="card gold">${cadena}</div>
+    </div>
+
+    <!-- ---------- el plan ---------- -->
+    <div>
+      <span class="kick">Qué hacer con esto</span>
+      <h2>La hora incómoda</h2>
+      <p class="lede" style="margin-bottom:20px">Lo incómodo no se arregla con fuerza de voluntad, porque a las once de la mañana ya tienes cuarenta razones legítimas. Se arregla dándole hora, cantidad y primer lugar.</p>
+      <div class="card">
+        <ol class="plan">
+          <li><span class="h">Dos bloques fijos de 45 minutos a la semana</span><span class="s">Martes y jueves, lo primero del día. Antes del correo. Antes del móvil. Si no es lo primero, no es.</span></li>
+          <li><span class="h">Cantidad contada, no tiempo cumplido</span><span class="s">${r.conv > 0 ? r.conv : 6} acciones por bloque: propuestas, seguimientos, mensajes a alguien que puede comprar. El bloque termina cuando termina la lista, no cuando pasan los 45 minutos.</span></li>
+          <li><span class="h">Empieza por el que más miedo te da</span><span class="s">El más incómodo primero. Los demás bajan solos de precio después de ese.</span></li>
+          <li><span class="h">De dónde salen esas horas</span><span class="s">De <strong>${escTopNm.toLowerCase()}</strong>, tu mayor bloque de escondite (${fmtH(r.escBy[r.escTop])} h). No lo elimines: recórtalo a la mitad y llévate lo que sobra a ${mueveA.join(" y ").toLowerCase()}.</span></li>
+          <li><span class="h">La decisión primero, la semana después</span><span class="s">${r.evitada ? "Antes del próximo lunes, " + r.evitada.corto + ". Esa sola decisión recoloca todo lo demás." : "Revisa el precio antes de añadir una sola hora más."}</span></li>
+        </ol>
+      </div>
+      <div class="mini" style="margin-top:16px">
+        <div><b>Semana actual</b><span>${fmtH(r.motorH)} h de motor sobre ${fmtH(r.H)} h · ${mp}%</span></div>
+        <div><b>Con la hora incómoda</b><span>${fmtH(r.motorH + r.libera)} h de motor · ${Math.round(100*(r.motorH+r.libera)/r.H)}%</span></div>
+        <div><b>Horas de trabajo añadidas</b><span>Cero. Es el mismo tiempo, colocado en otro sitio.</span></div>
+      </div>
+    </div>
+
+    <div class="pull">No necesitas más horas. Necesitas dejar de usar la agenda como escondite.</div>
+
+    <div class="card" id="contacto">
+      <h4>Si quieres que lo miremos juntas</h4>
+      <h3 style="margin-bottom:10px">¿Te escribo con tu diagnóstico y el primer movimiento?</h3>
+      <p>Tu resultado ya está guardado sin nombre. Si dejas cómo encontrarte, ${esc_(CONFIG.autora)} puede escribirte con estos números concretos delante — los tuyos, no un mensaje genérico.</p>
+      <div class="fields" style="margin-top:16px">
+        <div class="field">
+          <label for="c-nombre">Tu nombre</label>
+          <input type="text" id="c-nombre" autocomplete="name" value="${esc_(r.nombre)}">
+        </div>
+        <div class="field">
+          <label for="c-email">Email</label>
+          <input type="text" id="c-email" autocomplete="email" inputmode="email" placeholder="tu@correo.com">
+        </div>
+        <div class="field">
+          <label for="c-handle">O tu Instagram</label>
+          <input type="text" id="c-handle" placeholder="@tuusuario" autocomplete="off">
+        </div>
+      </div>
+      <div class="acts" style="margin-top:16px">
+        <button class="btn small" id="btnContacto">Que me escriba</button>
+        <span class="note" id="contactoMsg" style="margin:0"></span>
+      </div>
+      <p class="note" style="margin-top:14px">Con esto sí quedas identificada. Solo se usa para escribirte sobre esto; nada de listas compradas ni de spam.</p>
+    </div>
+
+    <div class="card gold">
+      <h4>Y ahora</h4>
+      <p>Este número no baja solo, porque no lo produce la falta de tiempo: lo produce que las tareas cómodas siempre ganan cuando compiten con las que exponen. Eso no se cambia con disciplina. Se cambia con dirección: decidir antes, por escrito, dónde va cada hora — y qué decisión se toma esta semana aunque incomode.</p>
+      <p style="margin-bottom:0"><strong>${esc_(CONFIG.ctaTexto)}</strong> y lo miramos con tus números delante.</p>
+      <div class="acts" style="margin-top:18px">
+        ${CONFIG.ctaUrl ? `<a class="btn" href="${esc_(CONFIG.ctaUrl)}" target="_blank" rel="noopener">${esc_(CONFIG.ctaBoton)}</a>` : ""}
+        <button class="btn ghost small" id="btnCopy">Copiar mi diagnóstico</button>
+        <button class="btn ghost small" id="btnAgain">Volver a empezar</button>
+      </div>
+    </div>
+
+  </div>`;
+
+  guardar(r);
+
+  const cMsg = $("#contactoMsg"), cBtn = $("#btnContacto");
+  cBtn.addEventListener("click", async () => {
+    const nombre = $("#c-nombre").value.trim();
+    const email  = $("#c-email").value.trim();
+    const handle = $("#c-handle").value.trim();
+    if (!email && !handle){ cMsg.textContent = "Escribe un email o tu Instagram."; return; }
+    if (email && email.indexOf("@") < 1){ cMsg.textContent = "Ese email no parece completo."; return; }
+    if (!RESP_ID){ cMsg.textContent = "No hay conexión ahora mismo. Escríbeme por Instagram y lo vemos igual."; return; }
+    cBtn.disabled = true; cMsg.textContent = "Enviando…";
+    try {
+      await rpc("calc_contacto", {p_id:RESP_ID, p_name:nombre, p_email:email, p_handle:handle});
+      $("#contacto").innerHTML = '<h4>Recibido</h4><h3 style="margin-bottom:10px">Te escribo yo.</h3>' +
+        '<p style="margin-bottom:0">Tus números ya están conmigo. Mientras tanto, empieza por el punto 5 del plan: esa decisión es la que recoloca el resto.</p>';
+    } catch(e){
+      cBtn.disabled = false;
+      cMsg.textContent = "No se pudo enviar. Escríbeme por Instagram y lo vemos igual.";
+    }
+  });
+
+  $("#btnAgain").addEventListener("click", () => go(0));
+  $("#btnCopy").addEventListener("click", () => {
+    const txt = [
+      "DIAGNÓSTICO DE PROCRASTINACIÓN PRODUCTIVA" + (r.nombre ? " — " + r.nombre : ""),
+      "",
+      "Índice de movimiento: " + mp + "%  (" + r.banda + ")",
+      "Índice de evasión: " + r.evasion + "%",
+      "Semana de " + fmtH(r.H) + " h → motor " + fmtH(r.motorH) + " h · sostén " + fmtH(r.sostenH) + " h · escondite " + fmtH(r.escH) + " h",
+      "",
+      "Patrón: " + r.P.nm,
+      r.P.retrato,
+      "",
+      "Decisión que estoy evitando: " + (r.evitada ? r.evitada.t : "ninguna pendiente"),
+      "Mayor bloque de escondite: " + escTopNm + " (" + fmtH(r.escBy[r.escTop]) + " h)",
+      "",
+      "La hora incómoda: 2 bloques de 45 min, martes y jueves, lo primero del día,",
+      (r.conv > 0 ? r.conv : 6) + " acciones contadas por bloque, empezando por la que más incomoda.",
+      "",
+      "Aritmética: " + fmtH(r.libera) + " h recuperadas → " + r.convM + " conversaciones/mes → " +
+        fmtH(r.ventas) + " ventas → " + r.mon + fmtN(r.ingreso) + "/mes"
+    ].join("\n");
+    navigator.clipboard.writeText(txt).then(() => {
+      const t = $("#toast"); t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 1900);
+    }).catch(() => {});
+  });
+
+  if (window.matchMedia && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    const sg = $$("#out .weekbar .sg").map(e => [e, e.style.width]);
+    sg.forEach(([e]) => e.style.width = "0%");
+    requestAnimationFrame(() => requestAnimationFrame(() => sg.forEach(([e,w]) => e.style.width = w)));
+  }
+}
+
+/* la lectura del mapa depende de donde caigan las horas: el hallazgo normal es
+   la esquina vacia, pero a quien la tiene ocupada hay que decirle otra cosa */
+function lecturaMapa(r){
+  const corner = BLOCKS.filter(b => r.C[b.id].motor > .5 && b.exp > .5)
+                       .reduce((a,b) => a + state.h[b.id], 0);
+  if (corner < .12*r.H) return `
+    <p style="margin-top:16px">Mira cómo se reparten. Tus círculos grandes viven abajo a la izquierda, donde nada te expone y nada se decide. Arriba a la derecha, donde entra el dinero nuevo, tienes <strong>${fmtH(corner)} h</strong> de tus ${fmtH(r.H)}. <strong>No estás eligiendo mal las tareas. Estás eligiendo bien las que no duelen.</strong></p>
+    <div class="pull rose">Diez cosas pequeñas para no hacer una grande no es pereza. Es puntería.</div>`;
+  return `
+    <p style="margin-top:16px">La esquina de arriba a la derecha tiene <strong>${fmtH(corner)} h</strong> de tus ${fmtH(r.H)}. Ahí es donde se decide, y casi todo el mundo la tiene vacía. Tú no.</p>
+    <div class="pull">Cuando la esquina incómoda ya está ocupada, el freno deja de ser el miedo y pasa a ser el precio.</div>`;
+}
+
+/* la única regla variable del instrumento, explicada a la vista */
+function contenidoNota(r){
+  const hc = state.h.contenido;
+  if (!hc) return "";
+  const k = r.C.contenido.k;
+  const pedir = state.h.convers + state.h.propuest + state.h.prospect;
+  const pct = Math.round(k*100);
+  const escC = (hc*r.C.contenido.esc);
+  const falta = Math.max(0, 0.35*hc - pedir);
+  return `
+  <div class="card ${k >= .8 ? "green" : "rose"}" style="margin-top:24px">
+    <h4>Cómo cuenta tu contenido</h4>
+    <p>El contenido es el único bloque con coeficiente variable, y es a propósito: <strong>publicar mueve el negocio en la medida en que algo lo sigue</strong>. La referencia es una hora de pedir por cada tres de publicar.</p>
+    <p>Tú publicas <strong>${fmtH(hc)} h</strong> y pides <strong>${fmtH(pedir)} h</strong>. Eso pone tu contenido al <strong>${pct}% de su potencia</strong>${
+      k >= .999 ? " — a pleno motor." : `: de esas ${fmtH(hc)} h, ${fmtH(escC)} h caen del lado del escondite.`}</p>
+    ${k < .999 ? `<p style="margin-bottom:0">No es que tu contenido sea malo. Es que no lleva a ninguna parte, y un camino sin destino se recorre igual de cansada. Con <strong>${fmtH(falta)} h más</strong> de pedir a la semana, el mismo contenido pasaría a contar entero.</p>`
+              : `<p style="margin-bottom:0">Publicas y pides en proporción. Poca gente lo hace.</p>`}
+  </div>`;
+}
+
+/* la cuenta concreta de cada perfil — el dato antes del giro */
+function cuenta(r){
+  const h = state.h, pedir = h.convers + h.propuest + h.prospect;
+  const ratio = (a,b) => b > 0 ? (a/b).toFixed(1).replace(".",",") : "∞";
+  switch(r.pk){
+    case "invisible":
+      return `<strong>${fmtH(h.contenido)} h</strong> creando contenido esta semana. <strong>${fmtH(pedir)} h</strong> pidiéndole algo a alguien. Por cada hora en la que alguien puede decirte que no, ${pedir>0?ratio(h.contenido,pedir):"todas las demás"} hablando hacia una audiencia que no tiene que contestarte.`;
+    case "perfeccionista":
+      return `<strong>${fmtH(h.pulir)} h</strong> puliendo. <strong>${fmtH(pedir)} h</strong> enseñándolo con precio delante. La versión mejorada existe. La conversación en la que se cobra, no.`;
+    case "alumna":
+      return `<strong>${fmtH(h.formacion)} h</strong> formándote. <strong>${fmtH(pedir)} h</strong> aplicándolo donde se paga. Al año son ${fmtH(h.formacion*46)} h de clase y ${fmtH(pedir*46)} h de examen.`;
+    case "bombera":
+      return `<strong>${fmtH(h.mensajes + h.reuniones)} h</strong> respondiendo y coordinando. <strong>${fmtH(h.decidir)} h</strong> decidiendo. De cada 10 h que trabajas, ${((h.mensajes+h.reuniones)/r.H*10).toFixed(1).replace(".",",")} las puso en tu agenda otra persona.`;
+    case "artesana":
+      return `<strong>${fmtH(h.entrega + h.mensajes)} h</strong> dentro del trabajo que ya vendiste — el ${Math.round(100*(h.entrega+h.mensajes)/r.H)}% de tu semana. <strong>${fmtH(pedir)} h</strong> consiguiendo el siguiente. Tu capacidad y tu crecimiento compiten por las mismas horas, y siempre gana el cliente que ya te pagó.`;
+    default:
+      return `<strong>${fmtH(r.motorH)} h</strong> de motor sobre ${fmtH(r.H)} h. Estás en el ${Math.round(r.mov*100)}%, por encima de la línea. El límite ya no es cuánto empujas.`;
+  }
+}
+</script>
+</body>
+</html>
