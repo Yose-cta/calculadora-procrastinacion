@@ -1061,37 +1061,7 @@ function render(r){
         <span class="note" id="bajarMsg" style="margin:0"></span>
       </div>
 
-      <div style="margin-top:26px;padding-top:22px;border-top:1px solid var(--line)">
-        <h4>${esc_(CONFIG.sesionNombre)} · ${esc_(CONFIG.sesionDura)}</h4>
-        <p>Sales con una decisión tomada y con la primera hora incómoda puesta en tu calendario, con día y hora.</p>
-        <div class="pull" style="margin:16px 0 0;font-size:19px">No cuesta dinero. Cuesta que llegues con tus números.</div>
-        <div class="acts hidden" id="agendaBox" style="margin-top:18px">
-          <a class="btn" id="btnAgenda" href="#" target="_blank" rel="noopener">Agendar mi ${esc_(CONFIG.sesionNombre)}</a>
-        </div>
-
-        <div id="pedirBox" style="margin-top:20px">
-          <p class="note" id="pedirIntro" style="margin-bottom:12px">Dime dónde escribirte y te paso las horas libres.</p>
-          <div class="fields">
-            <div class="field">
-              <label for="c-nombre">Tu nombre</label>
-              <input type="text" id="c-nombre" autocomplete="name" value="${esc_(r.nombre)}">
-            </div>
-            <div class="field">
-              <label for="c-email">Email</label>
-              <input type="text" id="c-email" autocomplete="email" inputmode="email" placeholder="tu@correo.com">
-            </div>
-            <div class="field">
-              <label for="c-handle">WhatsApp o Instagram</label>
-              <input type="text" id="c-handle" placeholder="+34 600 000 000" autocomplete="off">
-            </div>
-          </div>
-          <div class="acts" style="margin-top:16px">
-            <button class="btn" id="btnPedir">Quiero mi ${esc_(CONFIG.sesionNombre)}</button>
-            <span class="note" id="pedirMsg" style="margin:0"></span>
-          </div>
-          <p class="note" style="margin-top:12px">Solo se usa para agendar tu sesión.</p>
-        </div>
-      </div>
+      ${ofertaSesion(r, mp)}
     </div>
 
     <div class="card gold">
@@ -1181,6 +1151,71 @@ function render(r){
     sg.forEach(([e]) => e.style.width = "0%");
     requestAnimationFrame(() => requestAnimationFrame(() => sg.forEach(([e,w]) => e.style.width = w)));
   }
+}
+
+/* La oferta de la sesión, construida como la construiría Myron: se vende el
+   resultado (no la sesión), toda afirmación aterriza en una cifra que es SUYA,
+   y las objeciones se responden antes de que le dé tiempo a formularlas. */
+function ofertaSesion(r, mp){
+  const N = esc_(CONFIG.sesionNombre), D = esc_(CONFIG.sesionDura);
+  const hayCuenta = r.escH >= 1.5 && r.conv > 0;
+
+  const cifra = hayCuenta
+    ? `<p>Hace dos pantallas hicimos una multiplicación con tus números: recuperando <strong>un tercio</strong> de tus ${fmtH(r.escH)} h de escondite caben <strong>${r.convM} conversaciones al mes</strong>, y a tu cierre y tu precio eso son <strong>${esc_(r.mon)}${fmtN(r.ingreso)} al mes</strong> que hoy no existen.</p>
+       <p>Ese número no lo mueve un informe. Lo mueve una decisión, y las decisiones no se toman leyendo.</p>`
+    : `<p>Tu semana no tiene relleno que recortar, así que tu problema no es de horas. Es de dirección, y eso no se resuelve leyendo un informe: se resuelve decidiendo.</p>`;
+
+  return `
+      <div style="margin-top:26px;padding-top:22px;border-top:1px solid var(--line)">
+        <h4>${N} · ${D}</h4>
+        <h3 style="margin-bottom:12px">Lo que te llevas no son consejos. Es una decisión tomada y una hora bloqueada.</h3>
+        ${cifra}
+
+        <div class="mini" style="margin:20px 0">
+          <div><b>Miramos tu semana real</b><span>Los mismos números que acabas de ver, con las preguntas que no te puede hacer un formulario.</span></div>
+          <div><b>Sale una decisión, no una lista</b><span>Una sola: la que desatasca las otras cuatro.</span></div>
+          <div><b>Y sale con fecha</b><span>Día y hora de tu primera hora incómoda, antes de colgar.</span></div>
+        </div>
+
+        <p>Si te estás preguntando si esto es una llamada para venderte algo: en quince minutos no da tiempo. Y no le vendo a quien no quiere comprar, así que si no encajamos te lo digo yo primero.</p>
+        ${r.escH >= 3 ? `<p>Y si lo que piensas es que no tienes tiempo, mira otra vez tu propio dato: <strong>${fmtH(r.escH)} h a la semana</strong> en tareas que ni crean ni sostienen. Esto son quince minutos.</p>` : ""}
+
+        <div class="card" style="margin:20px 0;background:var(--card2)">
+          <h4>La pregunta que conviene hacerse</h4>
+          <p style="margin-bottom:0">No es cuánto cuesta la sesión. Es cuánto cuesta la semana que viene si no cambias nada: otras ${fmtH(r.escH)} h en el mismo sitio${r.evitada ? `, y otra semana sin ${esc_(r.evitada.corto)}` : ""}.</p>
+        </div>
+
+        <p>Es para quien va a mover algo esta semana. Si ahora mismo no vas a tocar tu agenda, guárdate el informe y vuelve cuando sí: no confundas haberlo intentado antes con que no funcione.</p>
+
+        <div class="pull" style="margin:20px 0 0;font-size:19px">No cuesta dinero. Cuesta que llegues con tus números.</div>
+
+        <div class="acts hidden" id="agendaBox" style="margin-top:20px">
+          <a class="btn" id="btnAgenda" href="#" target="_blank" rel="noopener">Agendar mi ${N}</a>
+        </div>
+
+        <div id="pedirBox" style="margin-top:20px">
+          <p class="note" id="pedirIntro" style="margin-bottom:12px">Dime dónde escribirte y te paso las horas libres.</p>
+          <div class="fields">
+            <div class="field">
+              <label for="c-nombre">Tu nombre</label>
+              <input type="text" id="c-nombre" autocomplete="name" value="${esc_(r.nombre)}">
+            </div>
+            <div class="field">
+              <label for="c-email">Email</label>
+              <input type="text" id="c-email" autocomplete="email" inputmode="email" placeholder="tu@correo.com">
+            </div>
+            <div class="field">
+              <label for="c-handle">WhatsApp o Instagram</label>
+              <input type="text" id="c-handle" placeholder="+34 600 000 000" autocomplete="off">
+            </div>
+          </div>
+          <div class="acts" style="margin-top:16px">
+            <button class="btn" id="btnPedir">Quiero mi ${N}</button>
+            <span class="note" id="pedirMsg" style="margin:0"></span>
+          </div>
+          <p class="note" style="margin-top:12px">Solo se usa para agendar tu sesión.</p>
+        </div>
+      </div>`;
 }
 
 /* El informe se lo lleva ella: un HTML suelto, con su diseño y sin conexión.
