@@ -294,15 +294,15 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
             <span>Acepto los términos de uso.</span>
           </label>
           <div style="margin-top:9px;padding-left:31px">
-            <p class="note" style="margin:0 0 8px">Sin registro y sin datos personales. El diagnóstico te lo descargas tú.</p>
+            <p class="note" style="margin:0 0 8px">Sin registro. Solo tu nombre, para poder entregarte el diagnóstico.</p>
             <button type="button" class="lnk" id="verTerminos">Leerlos</button>
           </div>
           <div class="terms hidden" id="terminos">
             <b>Términos de uso</b>
             <ul>
               <li>Este diagnóstico es una herramienta de orientación sobre tu semana de trabajo. No es asesoría financiera, legal ni psicológica, y sus resultados no garantizan ningún ingreso.</li>
-              <li>No se guarda ningún dato personal tuyo. Solo quedan las respuestas del cuestionario, que por sí solas no identifican a nadie, y sirven para ver qué patrones se repiten.</li>
-              <li>Si al final decides pedir tu diagnóstico por escrito, lo que escribas ahí se usa únicamente para enviártelo.</li>
+              <li>Se guardan tu nombre y tus respuestas, para poder entregarte el diagnóstico y ver qué patrones se repiten. Nada más: ni email ni teléfono.</li>
+              <li>Si al final pides la sesión, el email o el teléfono que escribas ahí se usan solo para agendarla.</li>
               <li>Todo viaja cifrado y se guarda protegido. No se vende ni se comparte con nadie. Puedes pedir que lo borremos cuando quieras.</li>
             </ul>
           </div>
@@ -326,8 +326,9 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
         <div class="card">
           <div class="fields">
             <div class="field">
-              <label for="q-nombre">Tu nombre (opcional)</label>
-              <input type="text" id="q-nombre" placeholder="Para el informe" autocomplete="off">
+              <label for="q-nombre">Tu nombre</label>
+              <input type="text" id="q-nombre" placeholder="Para poner en tu diagnóstico" autocomplete="given-name">
+              <span class="hint">Va en la cabecera de tu informe.</span>
             </div>
             <div class="field">
               <label for="q-horas">Horas que trabajas por semana</label>
@@ -361,6 +362,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
         <div class="acts">
           <button class="btn ghost small" data-go="0">Atrás</button>
           <button class="btn" data-go="2">Siguiente</button>
+          <span class="note" id="avisoNombre" style="margin:0"></span>
         </div>
       </div>
     </section>
@@ -482,6 +484,7 @@ async function guardar(r){
   if (!DB.url || !DB.key) return;
   try {
     RESP_ID = await rpc("calc_guardar", {
+      p_name: r.nombre,
       p_movimiento: r.pct,
       p_evasion: r.evasion,
       p_banda: r.banda,
@@ -694,6 +697,7 @@ const RAIL = ["Tus datos","Tu semana","Las decisiones","Tres preguntas"];
 function go(n){
   state.step = n;
   $$(".step").forEach(s => s.classList.toggle("on", +s.dataset.step === n));
+  $("#avisoNombre").textContent = "";
   const rail = $("#rail");
   rail.classList.toggle("hide", n === 0 || n === 5);
   if (n >= 1 && n <= 4){
@@ -703,7 +707,15 @@ function go(n){
   }
   window.scrollTo({top:0, behavior:"instant"});
 }
-$$("[data-go]").forEach(b => b.addEventListener("click", () => go(+b.dataset.go)));
+$$("[data-go]").forEach(b => b.addEventListener("click", () => {
+  const destino = +b.dataset.go;
+  if (destino === 2 && !$("#q-nombre").value.trim()){
+    $("#q-nombre").focus();
+    $("#avisoNombre").textContent = "Escribe tu nombre para poder ponerlo en tu diagnóstico.";
+    return;
+  }
+  go(destino);
+}));
 $("#btnCalc").addEventListener("click", calcular);
 tally();
 
@@ -1098,7 +1110,7 @@ function render(r){
   const pMsg = $("#pedirMsg"), pBtn = $("#btnPedir");
   if (CONFIG.agendaUrl) $("#pedirIntro").textContent = "O dime dónde escribirte y lo cerramos por mensaje.";
   pBtn.addEventListener("click", async () => {
-    const nombre = $("#c-nombre").value.trim();
+    const nombre = r.nombre;
     const email  = $("#c-email").value.trim();
     const handle = $("#c-handle").value.trim();
     if (!email && !handle){ pMsg.textContent = "Dime un email o un WhatsApp."; return; }
@@ -1198,10 +1210,6 @@ function ofertaSesion(r, mp){
         <div id="pedirBox" style="margin-top:20px">
           <p class="note" id="pedirIntro" style="margin-bottom:12px">Dime dónde escribirte y te paso las horas libres.</p>
           <div class="fields">
-            <div class="field">
-              <label for="c-nombre">Tu nombre</label>
-              <input type="text" id="c-nombre" autocomplete="name" value="${esc_(r.nombre)}">
-            </div>
             <div class="field">
               <label for="c-email">Email</label>
               <input type="text" id="c-email" autocomplete="email" inputmode="email" placeholder="tu@correo.com">
