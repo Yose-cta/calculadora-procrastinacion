@@ -294,7 +294,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
             <span>Acepto los términos de uso.</span>
           </label>
           <div style="margin-top:9px;padding-left:31px">
-            <p class="note" style="margin:0 0 8px">Para ver tu diagnóstico no tienes que registrarte y <strong>no se guarda ningún dato personal tuyo</strong>: ni nombre, ni email, ni teléfono.</p>
+            <p class="note" style="margin:0 0 8px">Sin registro y sin datos personales. El diagnóstico te lo descargas tú.</p>
             <button type="button" class="lnk" id="verTerminos">Leerlos</button>
           </div>
           <div class="terms hidden" id="terminos">
@@ -1053,38 +1053,21 @@ function render(r){
     <div class="card gold hidden" id="contacto">
       <h4>El peldaño que falta</h4>
       <h3 style="margin-bottom:10px">Ya sabes tu número. Saberlo no es moverlo.</h3>
-      <p>Acabas de subir un escalón: hace cinco minutos no sabías qué parte de tu semana movía el negocio y ahora lo sabes. Pero saber es acumulación. Mover es aplicación. Por eso conoces gente con seis formaciones hechas y la misma semana de siempre.</p>
-      <p>Este informe te dice cuál es tu número y por qué es ese. Lo que no puede hacer es sentarse contigo el martes a las nueve, cuando toca la hora incómoda y ya tienes cuarenta razones legítimas para abrir el correo primero.</p>
-      <p style="margin-bottom:6px"><strong>Eso se trabaja en una ${esc_(CONFIG.sesionNombre)} de ${esc_(CONFIG.sesionDura)}.</strong> Sales con una decisión tomada y con la primera hora incómoda puesta en tu calendario, con día y hora.</p>
-      <div class="pull" style="margin:18px 0 4px;font-size:19px">No cuesta dinero. Cuesta que llegues con tus números.</div>
-      <p class="note" style="max-width:58ch">Los tuyos ya los tienes: ${esc_(r.P.nm)}, ${mp}% de movimiento${r.evitada ? " y la decisión que sigues aplazando" : ""}. Con eso la sesión empieza en el minuto uno, no en la presentación.</p>
-
-      <div class="acts hidden" id="agendaBox" style="margin-top:20px">
-        <a class="btn" id="btnAgenda" href="#" target="_blank" rel="noopener">Agendar mi ${esc_(CONFIG.sesionNombre)}</a>
+      <p>Saber es acumulación. Mover es aplicación. Por eso conoces gente con seis formaciones hechas y la misma semana de siempre.</p>
+      <p style="margin-bottom:0"><strong>Guárdatelo antes de cerrar.</strong> Esta página no vuelve: al cerrarla, tu diagnóstico desaparece.</p>
+      <div class="acts" style="margin-top:18px">
+        <button class="btn" id="btnBajar">Descargar mi diagnóstico</button>
+        <button class="btn ghost small" id="btnImprimir">Imprimir</button>
+        <span class="note" id="bajarMsg" style="margin:0"></span>
       </div>
 
-      <div id="pedirBox" style="margin-top:26px;padding-top:22px;border-top:1px solid var(--line)">
-        <h4 id="pedirTit">Y llévate el diagnóstico por escrito</h4>
-        <p style="margin-bottom:0">Esto que estás leyendo se pierde en cuanto cierres la pestaña. Dime dónde te lo envío y lo tienes guardado para el lunes, cuando toque decidir de verdad.</p>
-        <div class="fields" style="margin-top:16px">
-          <div class="field">
-            <label for="c-nombre">Tu nombre</label>
-            <input type="text" id="c-nombre" autocomplete="name" value="${esc_(r.nombre)}">
-          </div>
-          <div class="field">
-            <label for="c-email">Email</label>
-            <input type="text" id="c-email" autocomplete="email" inputmode="email" placeholder="tu@correo.com">
-          </div>
-          <div class="field">
-            <label for="c-handle">WhatsApp o Instagram</label>
-            <input type="text" id="c-handle" placeholder="+34 600 000 000" autocomplete="off">
-          </div>
+      <div style="margin-top:26px;padding-top:22px;border-top:1px solid var(--line)">
+        <h4>${esc_(CONFIG.sesionNombre)} · ${esc_(CONFIG.sesionDura)}</h4>
+        <p>Sales con una decisión tomada y con la primera hora incómoda puesta en tu calendario, con día y hora.</p>
+        <div class="pull" style="margin:16px 0 0;font-size:19px">No cuesta dinero. Cuesta que llegues con tus números.</div>
+        <div class="acts hidden" id="agendaBox" style="margin-top:18px">
+          <a class="btn" id="btnAgenda" href="#" target="_blank" rel="noopener">Agendar mi ${esc_(CONFIG.sesionNombre)}</a>
         </div>
-        <div class="acts" style="margin-top:18px">
-          <button class="btn" id="btnContacto">Enviarme mi diagnóstico</button>
-          <span class="note" id="contactoMsg" style="margin:0"></span>
-        </div>
-        <p class="note" style="margin-top:14px">Lo que escribas aquí se usa solo para enviarte tu diagnóstico. Para nada más.</p>
       </div>
     </div>
 
@@ -1105,7 +1088,6 @@ function render(r){
   if (CONFIG.agendaUrl){
     $("#agendaBox").classList.remove("hidden");
     $("#btnAgenda").href = CONFIG.agendaUrl;
-    $("#pedirTit").textContent = "O llévate el diagnóstico por escrito";
   }
 
   guardar(r).then(() => {
@@ -1118,25 +1100,12 @@ function render(r){
     }
   });
 
-  const cMsg = $("#contactoMsg"), cBtn = $("#btnContacto");
-
-  cBtn.addEventListener("click", async () => {
-    const nombre = $("#c-nombre").value.trim();
-    const email  = $("#c-email").value.trim();
-    const handle = $("#c-handle").value.trim();
-    if (!email && !handle){ cMsg.textContent = "Dime un email o un WhatsApp para poder enviártelo."; return; }
-    if (email && email.indexOf("@") < 1){ cMsg.textContent = "Ese email no parece completo."; return; }
-    if (!RESP_ID){ cMsg.textContent = "No hay conexión ahora mismo. Vuelve a intentarlo en un momento."; return; }
-    cBtn.disabled = true; cMsg.textContent = "Enviando…";
-    try {
-      await rpc("calc_contacto", {p_id:RESP_ID, p_name:nombre, p_email:email, p_handle:handle});
-      $("#contacto").innerHTML = '<h4>Hecho</h4><h3 style="margin-bottom:10px">Te lo envío.</h3>' +
-        '<p style="margin-bottom:0">No esperes a tenerlo delante para empezar: el punto 5 del plan es el que recoloca todo lo demás, y ese lo puedes hacer hoy.</p>';
-    } catch(e){
-      cBtn.disabled = false;
-      cMsg.textContent = "No se pudo enviar. Inténtalo otra vez en un momento.";
-    }
+  $("#btnBajar").addEventListener("click", () => {
+    try { bajar(r); } catch(e){ $("#bajarMsg").textContent = "No se pudo. Prueba con Imprimir."; return; }
+    $("#bajarMsg").textContent = "Guardado en tus descargas.";
+    if (RESP_ID) rpc("calc_descarga", {p_id: RESP_ID}).catch(() => {});
   });
+  $("#btnImprimir").addEventListener("click", () => window.print());
 
   $("#btnAgain").addEventListener("click", () => go(0));
   $("#btnCopy").addEventListener("click", () => {
@@ -1169,6 +1138,33 @@ function render(r){
     sg.forEach(([e]) => e.style.width = "0%");
     requestAnimationFrame(() => requestAnimationFrame(() => sg.forEach(([e,w]) => e.style.width = w)));
   }
+}
+
+/* El informe se lo lleva ella: un HTML suelto, con su diseño y sin conexión.
+   Se clona lo que ya está en pantalla, se quitan los botones y listo. */
+function bajar(r){
+  const copia = $("#out").cloneNode(true);
+  const tarjeta = copia.querySelector("#contacto");
+  if (tarjeta) tarjeta.remove();
+  copia.querySelectorAll(".acts").forEach(e => e.remove());
+
+  const fuentes = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?' +
+    'family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;500;600;700;800&display=swap">';
+  const doc = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1"><title>Mi diagnóstico' +
+    (r.nombre ? " · " + esc_(r.nombre) : "") + '</title>' + fuentes +
+    document.querySelector("style").outerHTML +
+    '</head><body><div class="shell"><section class="step on">' +
+    copia.innerHTML + '</section></div></body></html>';
+
+  const enlace = document.createElement("a");
+  enlace.href = URL.createObjectURL(new Blob([doc], {type:"text/html;charset=utf-8"}));
+  enlace.download = "mi-diagnostico" +
+    (r.nombre ? "-" + r.nombre.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") : "") + ".html";
+  document.body.appendChild(enlace);
+  enlace.click();
+  enlace.remove();
+  setTimeout(() => URL.revokeObjectURL(enlace.href), 4000);
 }
 
 /* la lectura del mapa depende de donde caigan las horas: el hallazgo normal es
