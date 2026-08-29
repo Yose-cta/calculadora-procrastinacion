@@ -143,7 +143,8 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
 /* botones */
 .acts{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-top:6px}
 .btn{font-family:var(--ff);font-size:14.5px;font-weight:700;letter-spacing:.01em;padding:14px 28px;border-radius:100px;
-  border:1px solid var(--gold);background:var(--gold);color:#0A0910;cursor:pointer;transition:transform .16s ease,filter .16s ease}
+  border:1px solid var(--gold);background:var(--gold);color:#0A0910;cursor:pointer;text-decoration:none;
+  display:inline-block;text-align:center;transition:transform .16s ease,filter .16s ease}
 .btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .btn:active{transform:translateY(0)}
 .btn.ghost{background:transparent;border-color:var(--line2);color:var(--txt2)}
@@ -228,6 +229,30 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .hidden{display:none !important}
 
+/* consentimiento */
+.consent{margin-top:4px}
+.consent label{display:grid;grid-template-columns:20px 1fr;gap:11px;align-items:start;cursor:pointer;
+  font-size:13.6px;color:var(--txt2);line-height:1.5;max-width:60ch}
+.consent input{position:absolute;opacity:0;width:0;height:0}
+.consent .box{width:20px;height:20px;border:1.5px solid var(--line2);border-radius:5px;background:var(--card2);
+  position:relative;transition:.16s;margin-top:1px}
+.consent label:hover .box{border-color:var(--muted)}
+.consent input:checked+.box{background:var(--gold);border-color:var(--gold)}
+.consent input:checked+.box::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;
+  border:solid #0A0910;border-width:0 2.5px 2.5px 0;transform:rotate(43deg)}
+.consent input:focus-visible+.box{outline:2px solid var(--gold);outline-offset:3px}
+.lnk{background:none;border:0;padding:0;font:inherit;color:var(--gold);cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px}
+.lnk:hover{filter:brightness(1.15)}
+.terms{margin-top:14px;background:var(--card2);border:1px solid var(--line);border-radius:var(--r-s);
+  padding:16px 18px;font-size:12.8px;color:var(--muted);line-height:1.6;max-width:62ch}
+.terms b{display:block;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);
+  font-weight:700;margin-bottom:10px}
+.terms ul{margin:0;padding-left:17px}
+.terms li{margin-bottom:6px}
+.terms li:last-child{margin-bottom:0}
+.terms li::marker{color:var(--gold-d)}
+
 @media print{
   body{background:#fff;color:#111}
   .rail,.acts,.toast{display:none !important}
@@ -262,8 +287,28 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
           <p style="margin-bottom:0">Al final vas a ver tu semana dibujada en esos dos ejes. La parte interesante no es dónde están tus horas. Es <strong>la esquina donde no hay ninguna</strong>.</p>
         </div>
 
+        <div class="consent">
+          <label>
+            <input type="checkbox" id="okTerminos">
+            <span class="box"></span>
+            <span>Acepto los términos de uso y el tratamiento de mi información para realizar este diagnóstico.</span>
+          </label>
+          <div style="margin-top:10px;padding-left:31px">
+            <button type="button" class="lnk" id="verTerminos">Leerlos</button>
+          </div>
+          <div class="terms hidden" id="terminos">
+            <b>Términos de uso</b>
+            <ul>
+              <li>Este diagnóstico es una herramienta de orientación sobre tu semana de trabajo. No es asesoría financiera, legal ni psicológica, y sus resultados no garantizan ningún ingreso.</li>
+              <li>Tus respuestas se guardan sin nombre y sin email, para estudiar qué patrones se repiten.</li>
+              <li>Tu nombre y tu forma de contacto se guardan solo si los escribes tú al final, y solo se usan para responderte sobre esto.</li>
+              <li>Tu información viaja cifrada y se guarda protegida. No se vende ni se comparte con nadie. Puedes pedir que la borremos cuando quieras.</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="acts">
-          <button class="btn" data-go="1">Medir mi semana</button>
+          <button class="btn" data-go="1" id="btnEmpezar" disabled>Medir mi semana</button>
         </div>
       </div>
     </section>
@@ -383,8 +428,6 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
 
   <div class="foot">
     <b>Sobre los números.</b> Esto no es un estudio. Es un instrumento de dirección. Cada bloque de tu semana está puntuado con una sola pregunta detrás: si esa hora desapareciera, ¿entraría menos dinero nuevo el mes que viene? Uno solo cambia según tu caso, el del contenido, porque publicar mueve en proporción a lo que lo sigue. Y la cuenta del final no es una previsión: es una multiplicación con los supuestos a la vista. Discútela. Para eso están puestos.
-    <br><br>
-    <b>Sobre tus datos.</b> Tu resultado se guarda sin nombre y sin email, para saber qué patrones se repiten. Tu nombre, tu correo o tu Instagram se guardan solo si los escribes tú al final, y solo se usan para escribirte sobre esto.
   </div>
 </div>
 
@@ -399,8 +442,12 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
 const CONFIG = {
   autora:  "Yoselvia",
   ctaTexto:"Comenta o escríbeme la palabra DIRECCIÓN",
-  ctaUrl:  "",              // pon aquí tu enlace (Instagram, agenda, formulario). Vacío = sin botón.
-  ctaBoton:"Escribirme"
+
+  // >>> PEGA AQUÍ TU ENLACE DE AGENDA (Calendly, TidyCal, Google Calendar...).
+  //     Mientras esté vacío, la página enseña el formulario y esconde el botón.
+  agendaUrl:   "",
+  sesionNombre:"Sesión de Dirección",
+  sesionDura:  "15 minutos"
 };
 
 /* Conexión con tu base de datos. La clave es PÚBLICA a propósito: solo puede
@@ -657,6 +704,15 @@ function go(n){
 $$("[data-go]").forEach(b => b.addEventListener("click", () => go(+b.dataset.go)));
 $("#btnCalc").addEventListener("click", calcular);
 tally();
+
+/* consentimiento 1: sin aceptar no se empieza */
+$("#okTerminos").addEventListener("change", e => {
+  $("#btnEmpezar").disabled = !e.target.checked;
+});
+$("#verTerminos").addEventListener("click", () => {
+  const t = $("#terminos"), oculto = t.classList.toggle("hidden");
+  $("#verTerminos").textContent = oculto ? "Leerlos" : "Cerrar";
+});
 
 
 /* ══════════════════════════════════════════════════════════════
@@ -993,31 +1049,47 @@ function render(r){
 
     <div class="pull">No necesitas más horas. Necesitas dejar de usar la agenda como escondite.</div>
 
-    <div class="card hidden" id="contacto">
+    <div class="card gold hidden" id="contacto">
       <h4>El peldaño que falta</h4>
       <h3 style="margin-bottom:10px">Ya sabes tu número. Saberlo no es moverlo.</h3>
       <p>Acabas de subir un escalón: hace cinco minutos no sabías qué parte de tu semana movía el negocio y ahora lo sabes. Pero saber es acumulación. Mover es aplicación. Por eso conoces gente con seis formaciones hechas y la misma semana de siempre.</p>
       <p>Este informe te dice cuál es tu número y por qué es ese. Lo que no puede hacer es sentarse contigo el martes a las nueve, cuando toca la hora incómoda y ya tienes cuarenta razones legítimas para abrir el correo primero.</p>
-      <p>Eso sí lo hago yo. Dime cómo encontrarte y te escribo con tus números delante: ${esc_(r.P.nm)}, ${mp}% de movimiento${r.evitada ? " y la decisión que sigues aplazando: " + esc_(r.evitada.corto) : ""}. Con eso ya sé por dónde empezaría contigo.</p>
-      <div class="fields" style="margin-top:16px">
-        <div class="field">
-          <label for="c-nombre">Tu nombre</label>
-          <input type="text" id="c-nombre" autocomplete="name" value="${esc_(r.nombre)}">
+      <p style="margin-bottom:6px"><strong>Eso se trabaja en una ${esc_(CONFIG.sesionNombre)} de ${esc_(CONFIG.sesionDura)}.</strong> Sales con una decisión tomada y con la primera hora incómoda puesta en tu calendario, con día y hora.</p>
+      <div class="pull" style="margin:18px 0 4px;font-size:19px">No cuesta dinero. Cuesta que llegues con tus números.</div>
+      <p class="note" style="max-width:58ch">Los tuyos ya los tienes: ${esc_(r.P.nm)}, ${mp}% de movimiento${r.evitada ? " y la decisión que sigues aplazando" : ""}. Con eso la sesión empieza en el minuto uno, no en la presentación.</p>
+
+      <div class="acts hidden" id="agendaBox" style="margin-top:20px">
+        <a class="btn" id="btnAgenda" href="#" target="_blank" rel="noopener">Agendar mi ${esc_(CONFIG.sesionNombre)}</a>
+      </div>
+
+      <div id="pedirBox" style="margin-top:26px;padding-top:22px;border-top:1px solid var(--line)">
+        <h4 id="pedirTit">O pídela y te escribo yo</h4>
+        <div class="fields" style="margin-top:14px">
+          <div class="field">
+            <label for="c-nombre">Tu nombre</label>
+            <input type="text" id="c-nombre" autocomplete="name" value="${esc_(r.nombre)}">
+          </div>
+          <div class="field">
+            <label for="c-email">Email</label>
+            <input type="text" id="c-email" autocomplete="email" inputmode="email" placeholder="tu@correo.com">
+          </div>
+          <div class="field">
+            <label for="c-handle">WhatsApp o Instagram</label>
+            <input type="text" id="c-handle" placeholder="+34 600 000 000" autocomplete="off">
+          </div>
         </div>
-        <div class="field">
-          <label for="c-email">Email</label>
-          <input type="text" id="c-email" autocomplete="email" inputmode="email" placeholder="tu@correo.com">
+        <div class="consent" style="margin-top:18px">
+          <label>
+            <input type="checkbox" id="okContacto">
+            <span class="box"></span>
+            <span>Acepto que se guarden estos datos y que me contacten para agendar mi ${esc_(CONFIG.sesionNombre)}.</span>
+          </label>
         </div>
-        <div class="field">
-          <label for="c-handle">O tu Instagram</label>
-          <input type="text" id="c-handle" placeholder="@tuusuario" autocomplete="off">
+        <div class="acts" style="margin-top:16px">
+          <button class="btn" id="btnContacto" disabled>Solicitar mi sesión</button>
+          <span class="note" id="contactoMsg" style="margin:0"></span>
         </div>
       </div>
-      <div class="acts" style="margin-top:16px">
-        <button class="btn" id="btnContacto">Escríbeme con mis números</button>
-        <span class="note" id="contactoMsg" style="margin:0"></span>
-      </div>
-      <p class="note" style="margin-top:14px">Con esto sí quedas identificada. Te escribe ${esc_(CONFIG.autora)} en persona, no un sistema automático, y solo sobre esto.</p>
     </div>
 
     <div class="card gold">
@@ -1033,26 +1105,44 @@ function render(r){
 
   </div>`;
 
+  /* el enlace de agenda no depende del guardado: si existe, se enseña ya */
+  if (CONFIG.agendaUrl){
+    $("#agendaBox").classList.remove("hidden");
+    $("#btnAgenda").href = CONFIG.agendaUrl;
+    $("#pedirTit").textContent = "O pídela y te escribo yo";
+  } else {
+    $("#pedirTit").textContent = "Pídela y te escribo yo";
+  }
+
   guardar(r).then(() => {
-    if (RESP_ID) $("#contacto").classList.remove("hidden");
+    if (!RESP_ID) return;
+    $("#contacto").classList.remove("hidden");
+    /* la referencia deja casar la reserva con este diagnóstico en el panel */
+    if (CONFIG.agendaUrl){
+      const sep = CONFIG.agendaUrl.indexOf("?") < 0 ? "?" : "&";
+      $("#btnAgenda").href = CONFIG.agendaUrl + sep + "ref=" + encodeURIComponent(RESP_ID.slice(0,8));
+    }
   });
 
   const cMsg = $("#contactoMsg"), cBtn = $("#btnContacto");
+
+  /* consentimiento 2: sin aceptar no se envía */
+  $("#okContacto").addEventListener("change", e => { cBtn.disabled = !e.target.checked; });
   cBtn.addEventListener("click", async () => {
     const nombre = $("#c-nombre").value.trim();
     const email  = $("#c-email").value.trim();
     const handle = $("#c-handle").value.trim();
-    if (!email && !handle){ cMsg.textContent = "Escribe un email o tu Instagram."; return; }
+    if (!email && !handle){ cMsg.textContent = "Escribe un email o un WhatsApp."; return; }
     if (email && email.indexOf("@") < 1){ cMsg.textContent = "Ese email no parece completo."; return; }
-    if (!RESP_ID){ cMsg.textContent = "No hay conexión ahora mismo. Escríbeme por Instagram y lo vemos igual."; return; }
+    if (!RESP_ID){ cMsg.textContent = "No hay conexión ahora mismo. Vuelve a intentarlo en un momento."; return; }
     cBtn.disabled = true; cMsg.textContent = "Enviando…";
     try {
       await rpc("calc_contacto", {p_id:RESP_ID, p_name:nombre, p_email:email, p_handle:handle});
-      $("#contacto").innerHTML = '<h4>Recibido</h4><h3 style="margin-bottom:10px">Te escribo yo.</h3>' +
-        '<p style="margin-bottom:0">Tus números ya están conmigo. No esperes a que llegue mi mensaje para empezar: el punto 5 del plan es el que recoloca todo lo demás, y ese lo puedes hacer hoy.</p>';
+      $("#contacto").innerHTML = '<h4>Recibido</h4><h3 style="margin-bottom:10px">Te escribo para cerrar la hora.</h3>' +
+        '<p style="margin-bottom:0">Tus números ya están conmigo. No esperes a mi mensaje para empezar: el punto 5 del plan es el que recoloca todo lo demás, y ese lo puedes hacer hoy.</p>';
     } catch(e){
       cBtn.disabled = false;
-      cMsg.textContent = "No se pudo enviar. Escríbeme por Instagram y lo vemos igual.";
+      cMsg.textContent = "No se pudo enviar. Inténtalo otra vez en un momento.";
     }
   });
 
