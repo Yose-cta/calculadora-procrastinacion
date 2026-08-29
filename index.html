@@ -446,9 +446,9 @@ const CONFIG = {
 
   // >>> PEGA AQUÍ TU ENLACE DE AGENDA (Calendly, TidyCal, Google Calendar...).
   //     Mientras esté vacío, la página enseña el formulario y esconde el botón.
-  agendaUrl:   "",
+  agendaUrl:   "https://calendly.com/supcricionesyag/30min",
   sesionNombre:"Sesión de Dirección",
-  sesionDura:  "15 minutos"
+  sesionDura:  "30 minutos"   // debe coincidir con la duración real de tu Calendly
 };
 
 /* Conexión con tu base de datos. La clave es PÚBLICA a propósito: solo puede
@@ -1089,7 +1089,8 @@ function render(r){
     /* la referencia deja casar la reserva con este diagnóstico en el panel */
     if (CONFIG.agendaUrl){
       const sep = CONFIG.agendaUrl.indexOf("?") < 0 ? "?" : "&";
-      $("#btnAgenda").href = CONFIG.agendaUrl + sep + "ref=" + encodeURIComponent(RESP_ID.slice(0,8));
+      $("#btnAgenda").href = CONFIG.agendaUrl + sep +
+        "utm_source=calculadora&utm_content=" + encodeURIComponent(RESP_ID.slice(0,8));
     }
   });
 
@@ -1177,8 +1178,8 @@ function ofertaSesion(r, mp){
           <div><b>Y sale con fecha</b><span>Día y hora de tu primera hora incómoda, antes de colgar.</span></div>
         </div>
 
-        <p>Si te estás preguntando si esto es una llamada para venderte algo: en quince minutos no da tiempo. Y no le vendo a quien no quiere comprar, así que si no encajamos te lo digo yo primero.</p>
-        ${r.escH >= 3 ? `<p>Y si lo que piensas es que no tienes tiempo, mira otra vez tu propio dato: <strong>${fmtH(r.escH)} h a la semana</strong> en tareas que ni crean ni sostienen. Esto son quince minutos.</p>` : ""}
+        <p>Si te estás preguntando si esto es una llamada para venderte algo: en ${D} no da tiempo. Y no le vendo a quien no quiere comprar, así que si no encajamos te lo digo yo primero.</p>
+        ${r.escH >= 3 ? `<p>Y si lo que piensas es que no tienes tiempo, mira otra vez tu propio dato: <strong>${fmtH(r.escH)} h a la semana</strong> en tareas que ni crean ni sostienen. Esto son ${D}.</p>` : ""}
 
         <div class="card" style="margin:20px 0;background:var(--card2)">
           <h4>La pregunta que conviene hacerse</h4>
