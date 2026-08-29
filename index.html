@@ -430,7 +430,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(
   </main>
 
   <div class="foot">
-    <b>Sobre los números.</b> Esto no es un estudio. Es un instrumento de dirección. Cada bloque de tu semana está puntuado con una sola pregunta detrás: si esa hora desapareciera, ¿entraría menos dinero nuevo el mes que viene? Uno solo cambia según tu caso, el del contenido, porque publicar mueve en proporción a lo que lo sigue. Y la cuenta del final no es una previsión: es una multiplicación con los supuestos a la vista. Discútela. Para eso están puestos.
+    <b>Sobre los números.</b> Esto no es un estudio. Es un instrumento de dirección. Cada bloque de tu semana está puntuado con una sola pregunta detrás: si esa hora desapareciera, ¿entraría menos dinero nuevo el mes que viene? Uno solo cambia según tu caso, el del contenido: cuenta en proporción a las horas que dedicas a vender. Y la cuenta del final no es una previsión: es una multiplicación con los supuestos a la vista. Discútela. Para eso están puestos.
   </div>
 </div>
 
@@ -532,7 +532,7 @@ const BLOCKS = [
 /* El contenido es el único bloque con coeficiente variable, y es deliberado:
    publicar solo mueve el negocio en la medida en que algo lo sigue. Sin horas
    de pedir, el mismo contenido es alcance, no ingreso — y cae al escondite.
-   Referencia: 1 hora de pedir por cada 3 de publicar = contenido a pleno motor. */
+   Referencia: 1 hora de venta por cada 3 de publicar = contenido a pleno motor. */
 function coef(b, h){
   if (!b.dyn) return b;
   const pedir = h.convers + h.propuest + h.prospect;
@@ -575,7 +575,7 @@ const PERFILES = {
     nm:"La Invisible",
     frase:"“Estoy trabajando en mi marca.”",
     retrato:"Publicas, escribes, apareces. Tu audiencia sabe quién eres. Y aun así casi nadie llega nunca al momento en el que se decide algo, porque ese momento no está en tu semana.",
-    giro:"Publicar te deja elegir cuándo te miran. Pedir, no. Lo que evitas no es vender: es el segundo exacto en que alguien puede decirte que no delante de ti, sin edición y sin borrador. Por eso tu semana está llena de audiencia y vacía de conversaciones.",
+    giro:"Publicar te deja elegir cuándo te miran. Mandar la propuesta, no. Lo que evitas no es vender: es el segundo exacto en que alguien puede decirte que no delante de ti, sin edición y sin borrador. Por eso tu semana está llena de audiencia y vacía de conversaciones.",
     poder:"Eso se mueve. No con más contenido y no con más carácter: poniendo el “no” <em>antes</em> en la semana, en dosis pequeñas, contadas y con hora.",
     mueve:["propuest","convers"]
   },
@@ -1003,8 +1003,8 @@ function render(r){
       </div>
       ${contenidoNota(r)}
       <div class="card" style="margin-top:24px">
-        <h4>Por qué la línea está en el 20%</h4>
-        <p style="margin-bottom:0">No es un dato de un estudio: es aritmética. Si de cinco días de trabajo ninguno entero se dedica a conseguir, el mes que viene solo puede facturar lo que ya estaba en marcha este. Un día de cada cinco es el mínimo para que el negocio dependa de ti y no de la inercia. Tú estás en <strong>${mp}%</strong>: <strong>${fmtH(r.motorH/(r.H/5))} días de cinco</strong>${r.mov>=.2 ? ", por encima de la línea." : "."}</p>
+        <h4>La línea del 20%</h4>
+        <p style="margin-bottom:0">Cinco días de trabajo. Si ninguno entero se dedica a conseguir, el mes que viene factura lo que ya estaba en marcha este. No es pesimismo: es que no entró nada nuevo. Un día de cada cinco es el mínimo, y tú estás en <strong>${fmtH(r.motorH/(r.H/5))}</strong>.</p>
       </div>
     </div>
 
@@ -1167,7 +1167,7 @@ function render(r){
   }
 }
 
-/* La oferta de la sesión, construida como la construiría Myron: se vende el
+/* La oferta de la sesión: se vende el
    resultado (no la sesión), toda afirmación aterriza en una cifra que es SUYA,
    y las objeciones se responden antes de que le dé tiempo a formularlas. */
 function ofertaSesion(r, mp){
@@ -1279,12 +1279,13 @@ function contenidoNota(r){
   const falta = Math.max(0, 0.35*hc - pedir);
   return `
   <div class="card ${k >= .8 ? "green" : "rose"}" style="margin-top:24px">
-    <h4>Cómo cuenta tu contenido</h4>
-    <p>El contenido es el único bloque con coeficiente variable, y es a propósito: <strong>publicar mueve el negocio en la medida en que algo lo sigue</strong>. La referencia es una hora de pedir por cada tres de publicar.</p>
-    <p>Tú publicas <strong>${fmtH(hc)} h</strong> y pides <strong>${fmtH(pedir)} h</strong>. Eso pone tu contenido al <strong>${pct}% de su potencia</strong>${
-      k >= .999 ? ", a pleno motor." : `: de esas ${fmtH(hc)} h, ${fmtH(escC)} h caen del lado del escondite.`}</p>
-    ${k < .999 ? `<p style="margin-bottom:0">No es que tu contenido sea malo. Es que no lleva a ninguna parte, y un camino sin destino se recorre igual de cansada. Con <strong>${fmtH(falta)} h más</strong> de pedir a la semana, el mismo contenido pasaría a contar entero.</p>`
-              : `<p style="margin-bottom:0">Publicas y pides en proporción. Poca gente lo hace.</p>`}
+    <h4>${k >= .999 ? "Tu contenido cuenta entero" : "Por qué tu contenido cuenta a medias"}</h4>
+    <div class="pull ${k >= .999 ? "" : "rose"}" style="margin:0 0 16px;font-size:20px">Un escaparate sin puerta. Pasan, miran, siguen andando.</div>
+    <p>Publicas <strong>${fmtH(hc)} h</strong> a la semana. Vendes <strong>${fmtH(pedir)} h</strong>: mandar la propuesta, escribirle a quien preguntó y no contestó, proponer la llamada. Todo lo demás es escaparate.</p>
+    ${k >= .999
+      ? `<p style="margin-bottom:0">Esa proporción está bien, así que tus horas de contenido cuentan enteras. Poca gente lo hace.</p>`
+      : `<p>Por cada hora en la que alguien puede decirte que no, ${pedir > 0 ? 'dedicas ' + (hc/pedir).toFixed(0) : 'dedicas todas las demás'} a hablarle a gente que no tiene que contestarte.</p>
+         <p style="margin-bottom:0">Por eso tu contenido cuenta al <strong>${pct}%</strong>: de esas ${fmtH(hc)} h, <strong>${fmtH(escC)} h</strong> están del lado del escondite. No es que sea malo. Es una puerta que falta, y una puerta se pone: con <strong>${fmtH(falta)} h más</strong> de venta a la semana, esas mismas horas contarían enteras.</p>`}
   </div>`;
 }
 
@@ -1294,7 +1295,7 @@ function cuenta(r){
   const ratio = (a,b) => b > 0 ? (a/b).toFixed(1).replace(".",",") : "∞";
   switch(r.pk){
     case "invisible":
-      return `<strong>${fmtH(h.contenido)} h</strong> creando contenido esta semana. <strong>${fmtH(pedir)} h</strong> pidiéndole algo a alguien. Por cada hora en la que alguien puede decirte que no, ${pedir>0?ratio(h.contenido,pedir):"todas las demás"} hablando hacia una audiencia que no tiene que contestarte.`;
+      return `<strong>${fmtH(h.contenido)} h</strong> creando contenido esta semana. <strong>${fmtH(pedir)} h</strong> vendiendo. Por cada hora en la que alguien puede decirte que no, ${pedir>0?ratio(h.contenido,pedir):"todas las demás"} hablando hacia una audiencia que no tiene que contestarte.`;
     case "perfeccionista":
       return `<strong>${fmtH(h.pulir)} h</strong> puliendo. <strong>${fmtH(pedir)} h</strong> enseñándolo con precio delante. La versión mejorada existe. La conversación en la que se cobra, no.`;
     case "alumna":
